@@ -19,5 +19,6 @@ include("./robot.jl")
 include("./problem.jl")
 
 # Regular source code
+include("./transcription.jl")
 
 end # module
