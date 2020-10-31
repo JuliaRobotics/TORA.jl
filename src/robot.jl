@@ -4,7 +4,7 @@ struct Robot
     state::MechanismState
     statecache::StateCache
     dynamicsresultcache::DynamicsResultCache
-    urdfvisuals::URDFVisuals
+    mvis::MechanismVisualizer
 
     q_lo::Array{Float64}
     q_hi::Array{Float64}
@@ -22,11 +22,10 @@ struct Robot
     function Robot(urdfpath::String,
                    mechanism::Mechanism,
                    frame_ee::CartesianFrame3D,
-                   package_path::String)
+                   mvis::MechanismVisualizer)
         state = MechanismState(mechanism)
         statecache = StateCache(mechanism)
         dynamicsresultcache = DynamicsResultCache(mechanism)
-        urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
 
         q_lo = [lim for joint in joints(mechanism) for lim in map(x -> x.lower, position_bounds(joint))]
         q_hi = [lim for joint in joints(mechanism) for lim in map(x -> x.upper, position_bounds(joint))]
@@ -41,7 +40,7 @@ struct Robot
             state,
             statecache,
             dynamicsresultcache,
-            urdfvisuals,
+            mvis,
             q_lo,
             q_hi,
             v_lo,
@@ -56,7 +55,7 @@ struct Robot
     end
 end
 
-function create_robot_kuka_iiwa_14()
+function create_robot_kuka_iiwa_14(vis::Visualizer)
     package_path = joinpath(@__DIR__, "..", "iiwa_stack")
     urdfpath = joinpath(@__DIR__, "..", "robots", "iiwa14.urdf")
 
@@ -64,5 +63,9 @@ function create_robot_kuka_iiwa_14()
     frame_ee = default_frame(findbody(mechanism, "iiwa_link_pen_tip"))
     remove_fixed_tree_joints!(mechanism)
 
-    Robot(urdfpath, mechanism, frame_ee, package_path)
+    urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+    mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+    setelement!(mvis, frame_ee)  # Visualise a triad at the end-effector
+
+    Robot(urdfpath, mechanism, frame_ee, mvis)
 end
