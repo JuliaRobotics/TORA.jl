@@ -86,10 +86,11 @@ function solve_with_ipopt(problem::Problem, robot::Robot)
     # # # # #
 
     status = Ipopt.solveProblem(prob)
+    cpu_time = 0
 
     # println(Ipopt.ApplicationReturnStatus[status])
     # println(prob.x)
     # println(prob.obj_val)
 
-    return prob.x
+    return cpu_time, prob.x
 end
