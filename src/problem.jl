@@ -12,6 +12,9 @@ mutable struct Problem
     jacdata_ee_position::JacobianData
 
     function Problem(robot, num_knots, dt)
+        @assert num_knots > 0
+        @assert dt > 0
+
         input, output = rand(robot.n_q), rand(3)
         jacdata_ee_position = JacobianData((out, x) -> ee_position!(out, robot, x), output, input)
 

@@ -28,8 +28,10 @@ function solve_with_knitro(problem::Problem, robot::Robot)
     KNITRO.KN_set_var_lobnds(kc, Cint.(vec(ind_v) .- 1), repeat(robot.v_lo, problem.num_knots))  # v lower bounds
     KNITRO.KN_set_var_upbnds(kc, Cint.(vec(ind_v) .- 1), repeat(robot.v_hi, problem.num_knots))  # v upper bounds
 
-    KNITRO.KN_set_var_lobnds(kc, Cint.(vec(ind_τ) .- 1), repeat(robot.τ_lo, problem.num_knots - 1))  # τ lower bounds
-    KNITRO.KN_set_var_upbnds(kc, Cint.(vec(ind_τ) .- 1), repeat(robot.τ_hi, problem.num_knots - 1))  # τ upper bounds
+    if !isempty(ind_τ)
+        KNITRO.KN_set_var_lobnds(kc, Cint.(vec(ind_τ) .- 1), repeat(robot.τ_lo, problem.num_knots - 1))  # τ lower bounds
+        KNITRO.KN_set_var_upbnds(kc, Cint.(vec(ind_τ) .- 1), repeat(robot.τ_hi, problem.num_knots - 1))  # τ upper bounds
+    end
 
     # Fixed variables
     for (k, q) ∈ problem.fixed_q KNITRO.KN_set_var_fxbnds(kc, Cint.(vec(ind_q[:,k]) .- 1), q) end
