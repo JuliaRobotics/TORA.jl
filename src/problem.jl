@@ -8,13 +8,20 @@ mutable struct Problem
 
     ee_pos::Dict{Int64,Point{3,Float64}}  # End-effector target positions
 
-    function Problem(num_knots, dt)
+    # Jacobian data (e.g., for sparse Jacobian of dynamics with AD)
+    jacdata_ee_position::JacobianData
+
+    function Problem(robot, num_knots, dt)
+        input, output = rand(robot.n_q), rand(3)
+        jacdata_ee_position = JacobianData((out, x) -> ee_position!(out, robot, x), output, input)
+
         new(
             num_knots, dt,
             Dict{Int64,Array{Float64}}(),
             Dict{Int64,Array{Float64}}(),
             Dict{Int64,Array{Float64}}(),
-            Dict{Int64,Point{3,Float64}}()
+            Dict{Int64,Point{3,Float64}}(),
+            jacdata_ee_position
         )
     end
 end
@@ -40,6 +47,13 @@ function fix_joint_torques!(problem::Problem, robot::Robot, knot, τ)
     return problem
 end
 
+function constrain_ee_position!(problem::Problem, robot::Robot, knot, position)
+    @assert 1 <= knot <= problem.num_knots
+    @assert length(position) == 3
+    problem.ee_pos[knot] = position
+    return problem
+end
+
 function show_problem_info(problem::Problem)
     t = (problem.num_knots - 1) * problem.dt
 
@@ -47,4 +61,5 @@ function show_problem_info(problem::Problem)
     println("Number of knots with constrained joint positions ..... $(length(problem.fixed_q))")
     println("Number of knots with constrained joint velocities .... $(length(problem.fixed_v))")
     println("Number of knots with constrained joint torques ....... $(length(problem.fixed_τ))")
+    println("Number of knots with constrained ee position ......... $(length(problem.ee_pos))")
 end

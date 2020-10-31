@@ -65,7 +65,7 @@ function create_robot_kuka_iiwa_14(vis::Visualizer)
 
     urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
     mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
-    setelement!(mvis, frame_ee)  # Visualise a triad at the end-effector
+    # setelement!(mvis, frame_ee)  # Visualise a triad at the end-effector
 
     Robot(urdfpath, mechanism, frame_ee, mvis)
 end
