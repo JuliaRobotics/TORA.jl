@@ -34,7 +34,7 @@ function fix_joint_velocities!(problem::Problem, robot::Robot, knot, v)
 end
 
 function fix_joint_torques!(problem::Problem, robot::Robot, knot, τ)
-    @assert 1 <= knot <= problem.num_knots
+    @assert 1 <= knot <= problem.num_knots - 1
     @assert all(robot.τ_lo .<= τ .<= robot.τ_hi)
     problem.fixed_τ[knot] = τ
     return problem

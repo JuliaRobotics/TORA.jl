@@ -5,6 +5,7 @@ using LinearAlgebra; BLAS.set_num_threads(1)
 
 using ForwardDiff
 using GeometryTypes
+using Ipopt
 using KNITRO
 using MeshCat
 using MeshCatMechanisms
@@ -19,6 +20,7 @@ include("./robot.jl")
 include("./problem.jl")
 
 # Regular source code
-include("./transcription.jl")
+include("./transcription/ipopt.jl")
+include("./transcription/knitro.jl")
 
 end # module
