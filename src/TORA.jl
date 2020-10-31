@@ -4,6 +4,7 @@ module TORA
 using LinearAlgebra; BLAS.set_num_threads(1)
 
 using ForwardDiff
+using GeometryTypes
 using KNITRO
 using MeshCat
 using MeshCatMechanisms
@@ -15,6 +16,7 @@ greet() = print("Hello World!")
 
 # `Struct`-defining files
 include("./robot.jl")
+include("./problem.jl")
 
 # Regular source code
 
