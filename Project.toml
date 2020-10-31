@@ -4,4 +4,7 @@ authors = ["Henrique Ferrolho <henriqueferrolho@gmail.com>"]
 version = "0.1.0"
 
 [deps]
+MeshCat = "283c5d60-a78f-5afe-a0af-af636b173e11"
+MeshCatMechanisms = "6ad125db-dd91-5488-b820-c1df6aab299d"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+RigidBodyDynamics = "366cf18f-59d5-5db9-a4de-86a9f6786172"
