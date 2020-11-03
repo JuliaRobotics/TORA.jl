@@ -1,4 +1,5 @@
-function solve_with_knitro(problem::Problem, robot::Robot)
+function solve_with_knitro(problem::Problem, robot::Robot;
+                           initial_guess::Array{Float64}=Float64[])
     lm = KNITRO.LMcontext()  # Instantiate license manager
     kc = KNITRO.KN_new_lm(lm)  # Create a new Knitro instance
 
@@ -140,11 +141,15 @@ function solve_with_knitro(problem::Problem, robot::Robot)
         KNITRO.KN_set_cb_user_params(kc, cb, (problem, robot))
     end
 
-    # # # # # # # # # # #
-    # Seed / warm start #
-    # # # # # # # # # # #
+    # # # # # # # # #
+    # Initial guess #
+    # # # # # # # # #
 
-    KNITRO.KN_set_var_primal_init_values(kc, zeros(n))
+    if !isempty(initial_guess)
+        KNITRO.KN_set_var_primal_init_values(kc, vec(initial_guess))
+    else
+        KNITRO.KN_set_var_primal_init_values(kc, zeros(n))
+    end
 
     # # # # # # # # #
     # User Options  #
