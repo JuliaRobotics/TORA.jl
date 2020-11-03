@@ -9,11 +9,19 @@ mutable struct Problem
     ee_pos::Dict{Int64,Point{3,Float64}}  # End-effector target positions
 
     # Jacobian data (e.g., for sparse Jacobian of dynamics with AD)
+    jacdata_fwd_dyn::JacobianData
+    jacdata_inv_dyn::JacobianData
     jacdata_ee_position::JacobianData
 
     function Problem(robot, num_knots, dt)
         @assert num_knots > 0
         @assert dt > 0
+
+        input, output = rand(2 * (robot.n_q + robot.n_v) + robot.n_τ), rand(robot.n_q + robot.n_v)
+        jacdata_fwd_dyn = JacobianData((out, x) -> forward_dynamics_defects!(out, robot, x, dt), output, input)
+
+        input, output = rand(2 * (robot.n_q + robot.n_v) + robot.n_τ), rand(robot.n_q + robot.n_τ)
+        jacdata_inv_dyn = JacobianData((out, x) -> inverse_dynamics_defects!(out, robot, x, dt), output, input)
 
         input, output = rand(robot.n_q), rand(3)
         jacdata_ee_position = JacobianData((out, x) -> ee_position!(out, robot, x), output, input)
@@ -24,6 +32,8 @@ mutable struct Problem
             Dict{Int64,Array{Float64}}(),
             Dict{Int64,Array{Float64}}(),
             Dict{Int64,Point{3,Float64}}(),
+            jacdata_fwd_dyn,
+            jacdata_inv_dyn,
             jacdata_ee_position
         )
     end

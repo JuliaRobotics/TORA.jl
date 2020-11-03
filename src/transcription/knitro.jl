@@ -40,7 +40,9 @@ function solve_with_knitro(problem::Problem, robot::Robot)
     # Constraints #
     # # # # # # # #
 
-    use_m₁ = false  # nonlinear equality: dynamics
+    use_inv_dyn = false
+
+    use_m₁ = true  # nonlinear equality: dynamics
     use_m₂ = true  # nonlinear equality: ee xyz-position
 
     m₁ = !use_m₁ ? 0 : (robot.n_q + robot.n_v) * (problem.num_knots - 1)  # equations of motion
@@ -52,10 +54,42 @@ function solve_with_knitro(problem::Problem, robot::Robot)
     ind_con_dyn    = (1:m₁)
     ind_con_ee_pos = (1:m₂) .+ (m₁)
 
+    if use_m₁
+        KNITRO.KN_set_con_eqbnds(kc, collect(Cint, ind_con_dyn .- 1), zeros(m₁))
+
+        if use_inv_dyn
+        else
+            println("Constraints: Dynamics... (with FD)")
+
+            cb = KNITRO.KN_add_eval_callback(kc, false, collect(Cint, ind_con_dyn .- 1), cb_eval_fc_con_fwd_dyn)
+
+            jacIndexConsCB = Cint.(hcat([rowvals(problem.jacdata_fwd_dyn.jac) .+ i * size(problem.jacdata_fwd_dyn.jac, 1)
+                                         for i = (1:problem.num_knots - 1) .- 1]...) .- 1)
+
+            jacIndexVarsCB = Cint.(hcat([vcat([fill(j + i * nₓ, length(nzrange(problem.jacdata_fwd_dyn.jac, j)))
+                                               for j = 1:size(problem.jacdata_fwd_dyn.jac, 2)]...)
+                                         for i = (1:problem.num_knots - 1) .- 1]...) .- 1)
+
+            @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
+
+            KNITRO.KN_set_cb_grad(kc, cb, cb_eval_ga_con_fwd_dyn,
+                                  nV=0, objGradIndexVars=C_NULL,
+                                  jacIndexCons=jacIndexConsCB,
+                                  jacIndexVars=jacIndexVarsCB)
+        end
+
+        KNITRO.KN_set_cb_user_params(kc, cb, (problem, robot))
+    end
+
     if use_m₂
         knots_con_ee = sort(collect(keys(problem.ee_pos)))
 
-        con_ee = hcat([[problem.ee_pos[k].data...] for k in knots_con_ee]...)
+        con_ee = Array{Float64,2}(undef, 3, 0)
+
+        for k in knots_con_ee
+            con_ee = [con_ee problem.ee_pos[k]]
+        end
+
         @assert length(ind_con_ee_pos) == length(con_ee)
 
         KNITRO.KN_set_con_eqbnds(kc, collect(Cint, ind_con_ee_pos .- 1), vec(con_ee))
@@ -80,13 +114,11 @@ function solve_with_knitro(problem::Problem, robot::Robot)
         jacIndexVarsCB = Cint.(jacIndexVarsCB .- 1)
 
         @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
-        # return jacIndexVarsCB, jacIndexConsCB
 
-        # KNITRO.KN_set_cb_grad(kc, cb, nothing,
         KNITRO.KN_set_cb_grad(kc, cb, cb_eval_ga_con_ee,
-                              nV = 0, objGradIndexVars = C_NULL,
-                              jacIndexCons = jacIndexConsCB,
-                              jacIndexVars = jacIndexVarsCB)
+                              nV=0, objGradIndexVars=C_NULL,
+                              jacIndexCons=jacIndexConsCB,
+                              jacIndexVars=jacIndexVarsCB)
 
         KNITRO.KN_set_cb_user_params(kc, cb, (problem, robot))
     end

@@ -73,7 +73,7 @@ function inverse_dynamics_defects!(defects, robot, x::AbstractArray{T}, h) where
     dynamics_result = robot.dynamicsresultcache[T]
     wrenches = dynamics_result.jointwrenches
     accelerations = dynamics_result.accelerations
-    inverse_dynamics!(torques, wrenches, accelerations, state, v̇ᵢ, externalwrenches)
+    inverse_dynamics!(torques, wrenches, accelerations, state, v̇ᵢ)
 
     # position_defects = (qᵢ + h * vᵢ) - qᵢ₊₁  # Explicit Euler
     position_defects = (qᵢ + h * vᵢ₊₁) - qᵢ₊₁  # Semi-Implicit Euler
@@ -82,4 +82,44 @@ function inverse_dynamics_defects!(defects, robot, x::AbstractArray{T}, h) where
     # Evaluate defects (joint positions and joint torques)
     copyto!(defects, [position_defects
                         torque_defects])
+end
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+function cb_eval_fc_con_fwd_dyn(kc, cb, evalRequest, evalResult, userParams)
+    x = evalRequest.x
+    problem, robot = userParams
+
+    # dimension of each mesh points
+    nₓ = robot.n_q + robot.n_v + robot.n_τ
+
+    length_c = robot.n_q + robot.n_v
+
+    for i = 0:problem.num_knots - 2
+        ind_cons = (1:length_c) .+ i * length_c
+        ind_vars = range(1 + i * nₓ, length=2 * (robot.n_q + robot.n_v) + robot.n_τ)
+        @views forward_dynamics_defects!(evalResult.c[ind_cons], robot, x[ind_vars], problem.dt)
+    end
+
+    return 0
+end
+
+function cb_eval_ga_con_fwd_dyn(kc, cb, evalRequest, evalResult, userParams)
+    x = evalRequest.x
+    problem, robot = userParams
+
+    # dimension of each mesh points
+    nₓ = robot.n_q + robot.n_v + robot.n_τ
+
+    for i = 0:problem.num_knots - 2
+        ind_vars = range(1 + i * nₓ, length=2 * (robot.n_q + robot.n_v) + robot.n_τ)
+
+        problem.jacdata_fwd_dyn(x[ind_vars])
+
+        offset_jac = i * problem.jacdata_fwd_dyn.length_jac
+        ind_jac = (1:problem.jacdata_fwd_dyn.length_jac) .+ offset_jac
+        evalResult.jac[ind_jac] = nonzeros(problem.jacdata_fwd_dyn.jac)
+    end
+
+    return 0
 end
