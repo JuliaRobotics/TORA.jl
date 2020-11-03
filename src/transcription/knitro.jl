@@ -41,6 +41,7 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     # Constraints #
     # # # # # # # #
 
+    minimise_τ = false
     use_inv_dyn = true
 
     use_m₁ = true  # nonlinear equality: dynamics
@@ -139,6 +140,18 @@ function solve_with_knitro(problem::Problem, robot::Robot;
                               jacIndexVars=jacIndexVarsCB)
 
         KNITRO.KN_set_cb_user_params(kc, cb, (problem, robot))
+    end
+
+    # # # # # # #
+    # Objective #
+    # # # # # # #
+
+    if minimise_τ
+        # Minimise τ, i.e., the necessary joint torques.
+        indexVars, coefs = Cint.(vec(ind_τ) .- 1), fill(1 / (problem.num_knots - 1), n3)
+        KNITRO.KN_add_obj_quadratic_struct(kc, indexVars, indexVars, coefs)
+
+        KNITRO.KN_set_obj_goal(kc, KNITRO.KN_OBJGOAL_MINIMIZE)
     end
 
     # # # # # # # # #
