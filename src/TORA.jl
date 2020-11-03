@@ -23,6 +23,8 @@ include("./robot.jl")
 include("./problem.jl")
 
 # Regular source code
+include("./constraints/dynamics.jl")
+include("./constraints/end_effector.jl")
 include("./transcription/ipopt.jl")
 include("./transcription/knitro.jl")
 

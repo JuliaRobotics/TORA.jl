@@ -1,5 +1,3 @@
-include("../constraints/end_effector.jl")
-
 function solve_with_knitro(problem::Problem, robot::Robot)
     lm = KNITRO.LMcontext()  # Instantiate license manager
     kc = KNITRO.KN_new_lm(lm)  # Create a new Knitro instance
