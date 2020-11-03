@@ -40,7 +40,7 @@ function solve_with_knitro(problem::Problem, robot::Robot)
     # Constraints #
     # # # # # # # #
 
-    use_inv_dyn = false
+    use_inv_dyn = true
 
     use_m₁ = true  # nonlinear equality: dynamics
     use_m₂ = true  # nonlinear equality: ee xyz-position
@@ -58,6 +58,23 @@ function solve_with_knitro(problem::Problem, robot::Robot)
         KNITRO.KN_set_con_eqbnds(kc, collect(Cint, ind_con_dyn .- 1), zeros(m₁))
 
         if use_inv_dyn
+            println("Constraints: Dynamics... (with ID)")
+
+            cb = KNITRO.KN_add_eval_callback(kc, false, collect(Cint, ind_con_dyn .- 1), cb_eval_fc_con_inv_dyn)
+
+            jacIndexConsCB = Cint.(hcat([rowvals(problem.jacdata_inv_dyn.jac) .+ i * size(problem.jacdata_inv_dyn.jac, 1)
+                                         for i = (1:problem.num_knots - 1) .- 1]...) .- 1)
+
+            jacIndexVarsCB = Cint.(hcat([vcat([fill(j + i * nₓ, length(nzrange(problem.jacdata_inv_dyn.jac, j)))
+                                               for j = 1:size(problem.jacdata_inv_dyn.jac, 2)]...)
+                                         for i = (1:problem.num_knots - 1) .- 1]...) .- 1)
+
+            @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
+
+            KNITRO.KN_set_cb_grad(kc, cb, cb_eval_ga_con_inv_dyn,
+                                  nV=0, objGradIndexVars=C_NULL,
+                                  jacIndexCons=jacIndexConsCB,
+                                  jacIndexVars=jacIndexVarsCB)
         else
             println("Constraints: Dynamics... (with FD)")
 
@@ -137,6 +154,8 @@ function solve_with_knitro(problem::Problem, robot::Robot)
     KNITRO.KN_set_param(kc, KNITRO.KN_PARAM_ALGORITHM, KNITRO.KN_ALG_BAR_DIRECT)
     KNITRO.KN_set_param(kc, KNITRO.KN_PARAM_BAR_MURULE, KNITRO.KN_BAR_MURULE_ADAPTIVE)
     KNITRO.KN_set_param(kc, KNITRO.KN_PARAM_LINSOLVER, KNITRO.KN_LINSOLVER_MA57)
+    KNITRO.KN_set_param(kc, KNITRO.KN_PARAM_FEASTOL, 1.0e-3)
+    KNITRO.KN_set_param(kc, KNITRO.KN_PARAM_FTOL, 1.0e-6)
     KNITRO.KN_set_param(kc, KNITRO.KN_PARAM_MAXTIMECPU, 10.0)
 
     function callbackNewPoint(kc, x, duals, userParams)
