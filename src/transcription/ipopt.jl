@@ -246,7 +246,11 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     addOption(prob, "mu_strategy", "adaptive")
     addOption(prob, "linear_solver", "ma57")
     addOption(prob, "ma57_pre_alloc", 2.0)
+    addOption(prob, "tol", 1.0e-3)
     addOption(prob, "max_cpu_time", 10.0)
+
+    # # Perform a derivative check.
+    # addOption(prob, "derivative_test", "first-order")
 
     # # # # #
     # Solve #
