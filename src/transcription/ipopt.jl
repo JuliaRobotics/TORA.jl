@@ -177,13 +177,31 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     end
 
     function eval_grad_f(x, grad_f)
-        grad_f[:] .= 0
+        grad_f[:] = zeros(n)
+    end
+
+    if minimise_τ
+        ind_τ = hcat([range(1 + (i * nₓ) + robot.n_q + robot.n_v, length=robot.n_τ)
+                      for i = (1:problem.num_knots - 1) .- 1]...)
+        indexVars, coefs = vec(ind_τ), fill(1 / (problem.num_knots - 1), n3)
+        @assert length(indexVars) == length(coefs)
+
+        eval_f = function(x)
+            # Minimise τ, i.e., the necessary joint torques.
+            return sum(coefs .* x[indexVars] .* x[indexVars])
+        end
+
+        eval_grad_f = function(x, grad_f)
+            grad_f[:] = zeros(n)
+            grad_f[indexVars] .= coefs .* 2x[indexVars]
+        end
     end
 
     # # # # # # # # # #
     # Create Problem  #
     # # # # # # # # # #
 
+    # number of nonzeros in the Jacobian of the constraints
     nele_jac = jacdata_dyn.length_jac * (problem.num_knots - 1) +
                problem.jacdata_ee_position.length_jac * length(problem.ee_pos)
 
