@@ -1,5 +1,5 @@
 function solve_with_knitro(problem::Problem, robot::Robot;
-                           initial_guess::Array{Float64}=Float64[])
+                           initial_guess::Array{Float64}=Float64[], use_inv_dyn::Bool=false, minimise_τ::Bool=false)
     lm = KNITRO.LMcontext()  # Instantiate license manager
     kc = KNITRO.KN_new_lm(lm)  # Create a new Knitro instance
 
@@ -41,9 +41,6 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     # Constraints #
     # # # # # # # #
 
-    minimise_τ = false
-    use_inv_dyn = true
-
     use_m₁ = true  # nonlinear equality: dynamics
     use_m₂ = true  # nonlinear equality: ee xyz-position
 
@@ -60,44 +57,30 @@ function solve_with_knitro(problem::Problem, robot::Robot;
         KNITRO.KN_set_con_eqbnds(kc, collect(Cint, ind_con_dyn .- 1), zeros(m₁))
 
         if use_inv_dyn
-            println("Constraints: Dynamics... (with ID)")
-
-            cb = KNITRO.KN_add_eval_callback(kc, false, collect(Cint, ind_con_dyn .- 1), cb_eval_fc_con_inv_dyn)
-
-            jacIndexConsCB = Cint.(hcat([rowvals(problem.jacdata_inv_dyn.jac) .+ i * size(problem.jacdata_inv_dyn.jac, 1)
-                                         for i = (1:problem.num_knots - 1) .- 1]...) .- 1)
-
-            jacIndexVarsCB = Cint.(hcat([vcat([fill(j + i * nₓ, length(nzrange(problem.jacdata_inv_dyn.jac, j)))
-                                               for j = 1:size(problem.jacdata_inv_dyn.jac, 2)]...)
-                                         for i = (1:problem.num_knots - 1) .- 1]...) .- 1)
-
-            @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
-
-            KNITRO.KN_set_cb_grad(kc, cb, cb_eval_ga_con_inv_dyn,
-                                  nV=0, objGradIndexVars=C_NULL,
-                                  jacIndexCons=jacIndexConsCB,
-                                  jacIndexVars=jacIndexVarsCB)
+            jac = problem.jacdata_inv_dyn.jac
+            cb_eval_fc_con = make_cb_eval_fc_con_dyn(problem, robot, problem.jacdata_inv_dyn, inverse_dynamics_defects!)
+            cb_eval_ga_con = make_cb_eval_ga_con_dyn(problem, robot, problem.jacdata_inv_dyn)
         else
-            println("Constraints: Dynamics... (with FD)")
-
-            cb = KNITRO.KN_add_eval_callback(kc, false, collect(Cint, ind_con_dyn .- 1), cb_eval_fc_con_fwd_dyn)
-
-            jacIndexConsCB = Cint.(hcat([rowvals(problem.jacdata_fwd_dyn.jac) .+ i * size(problem.jacdata_fwd_dyn.jac, 1)
-                                         for i = (1:problem.num_knots - 1) .- 1]...) .- 1)
-
-            jacIndexVarsCB = Cint.(hcat([vcat([fill(j + i * nₓ, length(nzrange(problem.jacdata_fwd_dyn.jac, j)))
-                                               for j = 1:size(problem.jacdata_fwd_dyn.jac, 2)]...)
-                                         for i = (1:problem.num_knots - 1) .- 1]...) .- 1)
-
-            @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
-
-            KNITRO.KN_set_cb_grad(kc, cb, cb_eval_ga_con_fwd_dyn,
-                                  nV=0, objGradIndexVars=C_NULL,
-                                  jacIndexCons=jacIndexConsCB,
-                                  jacIndexVars=jacIndexVarsCB)
+            jac = problem.jacdata_fwd_dyn.jac
+            cb_eval_fc_con = make_cb_eval_fc_con_dyn(problem, robot, problem.jacdata_fwd_dyn, forward_dynamics_defects!)
+            cb_eval_ga_con = make_cb_eval_ga_con_dyn(problem, robot, problem.jacdata_fwd_dyn)
         end
 
-        KNITRO.KN_set_cb_user_params(kc, cb, (problem, robot))
+        cb = KNITRO.KN_add_eval_callback(kc, false, collect(Cint, ind_con_dyn .- 1), cb_eval_fc_con)
+
+        jacIndexConsCB = Cint.(hcat([rowvals(jac) .+ i * size(jac, 1)
+                                     for i = 0:problem.num_knots - 2]...) .- 1)
+
+        jacIndexVarsCB = Cint.(hcat([vcat([fill(j + i * nₓ, length(nzrange(jac, j)))
+                                           for j = 1:size(jac, 2)]...)
+                                     for i = 0:problem.num_knots - 2]...) .- 1)
+
+        @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
+
+        KNITRO.KN_set_cb_grad(kc, cb, cb_eval_ga_con,
+                              nV=0, objGradIndexVars=C_NULL,
+                              jacIndexCons=jacIndexConsCB,
+                              jacIndexVars=jacIndexVarsCB)
     end
 
     if use_m₂

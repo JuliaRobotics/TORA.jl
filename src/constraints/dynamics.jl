@@ -86,80 +86,46 @@ end
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-function cb_eval_fc_con_fwd_dyn(kc, cb, evalRequest, evalResult, userParams)
-    x = evalRequest.x
-    problem, robot = userParams
+function make_cb_eval_fc_con_dyn(problem, robot, jacdata, eval_fc!::Function)
+    nₓ = robot.n_q + robot.n_v + robot.n_τ  # dimension of each mesh points
+    length_c = size(jacdata.jac, 1)  # length of constraint per pair of knots
 
-    # dimension of each mesh points
-    nₓ = robot.n_q + robot.n_v + robot.n_τ
+    function cb_eval_fc_con_dyn(kc, cb, evalRequest, evalResult, userParams)
+        x = evalRequest.x
 
-    length_c = robot.n_q + robot.n_v
+        for i = 0:problem.num_knots - 2
+            # Calculate the indices of the appropriate decision variables
+            ind_vars = range(1 + i * nₓ, length=size(jacdata.jac, 2))
 
-    for i = 0:problem.num_knots - 2
-        ind_cons = (1:length_c) .+ i * length_c
-        ind_vars = range(1 + i * nₓ, length=2 * (robot.n_q + robot.n_v) + robot.n_τ)
-        @views forward_dynamics_defects!(evalResult.c[ind_cons], robot, x[ind_vars], problem.dt)
+            # Evaluate constraints for Knitro
+            offset_con = i * length_c
+            ind_con = (1:length_c) .+ offset_con
+            @views eval_fc!(evalResult.c[ind_con], robot, x[ind_vars], problem.dt)
+        end
+
+        return 0
     end
-
-    return 0
 end
 
-function cb_eval_ga_con_fwd_dyn(kc, cb, evalRequest, evalResult, userParams)
-    x = evalRequest.x
-    problem, robot = userParams
+function make_cb_eval_ga_con_dyn(problem, robot, jacdata)
+    nₓ = robot.n_q + robot.n_v + robot.n_τ  # dimension of each mesh points
 
-    # dimension of each mesh points
-    nₓ = robot.n_q + robot.n_v + robot.n_τ
+    function cb_eval_ga_con_dyn(kc, cb, evalRequest, evalResult, userParams)
+        x = evalRequest.x
 
-    for i = 0:problem.num_knots - 2
-        ind_vars = range(1 + i * nₓ, length=2 * (robot.n_q + robot.n_v) + robot.n_τ)
+        for i = 0:problem.num_knots - 2
+            # Calculate the indices of the appropriate decision variables
+            ind_vars = range(1 + i * nₓ, length=size(jacdata.jac, 2))
 
-        problem.jacdata_fwd_dyn(x[ind_vars])
+            # Evaluate the Jacobian at that point
+            jacdata(x[ind_vars])
 
-        offset_jac = i * problem.jacdata_fwd_dyn.length_jac
-        ind_jac = (1:problem.jacdata_fwd_dyn.length_jac) .+ offset_jac
-        evalResult.jac[ind_jac] = nonzeros(problem.jacdata_fwd_dyn.jac)
+            # Pass the Jacobian to Knitro
+            offset_jac = i * jacdata.length_jac
+            ind_jac = (1:jacdata.length_jac) .+ offset_jac
+            evalResult.jac[ind_jac] = nonzeros(jacdata.jac)
+        end
+
+        return 0
     end
-
-    return 0
-end
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-function cb_eval_fc_con_inv_dyn(kc, cb, evalRequest, evalResult, userParams)
-    x = evalRequest.x
-    problem, robot = userParams
-
-    # dimension of each mesh points
-    nₓ = robot.n_q + robot.n_v + robot.n_τ
-
-    length_c = robot.n_q + robot.n_τ
-
-    for i = 0:problem.num_knots - 2
-        ind_cons = (1:length_c) .+ i * length_c
-        ind_vars = range(1 + i * nₓ, length=2 * (robot.n_q + robot.n_v) + robot.n_τ)
-        @views inverse_dynamics_defects!(evalResult.c[ind_cons], robot, x[ind_vars], problem.dt)
-    end
-
-    return 0
-end
-
-function cb_eval_ga_con_inv_dyn(kc, cb, evalRequest, evalResult, userParams)
-    x = evalRequest.x
-    problem, robot = userParams
-
-    # dimension of each mesh points
-    nₓ = robot.n_q + robot.n_v + robot.n_τ
-
-    for i = 0:problem.num_knots - 2
-        ind_vars = range(1 + i * nₓ, length=2 * (robot.n_q + robot.n_v) + robot.n_τ)
-
-        problem.jacdata_inv_dyn(x[ind_vars])
-
-        offset_jac = i * problem.jacdata_inv_dyn.length_jac
-        ind_jac = (1:problem.jacdata_inv_dyn.length_jac) .+ offset_jac
-        evalResult.jac[ind_jac] = nonzeros(problem.jacdata_inv_dyn.jac)
-    end
-
-    return 0
 end
