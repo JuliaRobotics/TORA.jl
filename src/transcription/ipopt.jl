@@ -190,7 +190,16 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     prob = Ipopt.createProblem(n, vec(x_L), vec(x_U), m, g_L, g_U, nele_jac, 0,
                                eval_f, eval_g, eval_grad_f, eval_jac_g)
 
-    prob.x = zeros(n)  # Set starting solution
+    # # # # # # # # #
+    # Initial guess #
+    # # # # # # # # #
+
+    # Set starting solution
+    if !isempty(initial_guess)
+        prob.x = vec(initial_guess)
+    else
+        prob.x = zeros(n)
+    end
 
     # # # # # # # # #
     # User Options  #
