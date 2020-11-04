@@ -10,10 +10,13 @@ using Ipopt
 using KNITRO
 using MeshCat
 using MeshCatMechanisms
+using Plots
 using Random: rand!
 using RigidBodyDynamics
 using SparseArrays
 using SparseDiffTools
+
+using Plots.PlotMeasures: px
 
 greet() = print("Hello World!")
 
@@ -27,5 +30,6 @@ include("./constraints/dynamics.jl")
 include("./constraints/end_effector.jl")
 include("./transcription/ipopt.jl")
 include("./transcription/knitro.jl")
+include("./plots.jl")
 
 end # module
