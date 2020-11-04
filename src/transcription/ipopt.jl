@@ -1,4 +1,5 @@
-function solve_with_ipopt(problem::Problem, robot::Robot)
+function solve_with_ipopt(problem::Problem, robot::Robot;
+                          initial_guess::Array{Float64}=Float64[], use_inv_dyn::Bool=false, minimise_τ::Bool=false)
     # # # # # # # # # # # # # # # #
     # Variables and their bounds  #
     # # # # # # # # # # # # # # # #
@@ -44,7 +45,7 @@ function solve_with_ipopt(problem::Problem, robot::Robot)
     # Constraints #
     # # # # # # # #
 
-    use_m₁ = false  # nonlinear equality: dynamics
+    use_m₁ = true  # nonlinear equality: dynamics
     use_m₂ = true  # nonlinear equality: ee xyz-position
 
     m₁ = !use_m₁ ? 0 : (robot.n_q + robot.n_v) * (problem.num_knots - 1)  # equations of motion
@@ -57,6 +58,11 @@ function solve_with_ipopt(problem::Problem, robot::Robot)
 
     g_L, g_U = Float64[], Float64[]
 
+    if use_m₁
+        append!(g_L, zeros(m₁))
+        append!(g_U, zeros(m₁))
+    end
+
     if use_m₂
         knots_con_ee = sort(collect(keys(problem.ee_pos)))
         con_ee = hcat([[problem.ee_pos[k].data...] for k in knots_con_ee]...)
@@ -67,34 +73,67 @@ function solve_with_ipopt(problem::Problem, robot::Robot)
     # dimension of each mesh point
     nₓ = robot.n_q + robot.n_v + robot.n_τ
 
-    function eval_g(x, g)
-        length_c = 3
+    if use_inv_dyn
+        jacdata_dyn = problem.jacdata_inv_dyn
+        dynamics_defects! = inverse_dynamics_defects!
+    else
+        jacdata_dyn = problem.jacdata_fwd_dyn
+        dynamics_defects! = forward_dynamics_defects!
+    end
 
+    function eval_g(x, g)
+        length_c = size(jacdata_dyn.jac, 1)  # length of constraint per pair of knots
+        for i = 0:problem.num_knots - 2
+            # Calculate the indices of the appropriate decision variables
+            ind_vars = range(1 + i * nₓ, length=size(jacdata_dyn.jac, 2))
+
+            # Evaluate constraints
+            offset_con = i * length_c
+            ind_cons = (1:length_c) .+ offset_con
+            @views dynamics_defects!(g[ind_cons], robot, x[ind_vars], problem.dt)
+        end
+
+        length_c = 3
         for (i, k) = enumerate(sort(collect(keys(problem.ee_pos))))
-            ind_qᵢ = range(1 + (k - 1) * nₓ, length=robot.n_q)  # indices of the decision variables
-            ind_c = (1:length_c) .+ ((i - 1) * length_c)
-            @views ee_position!(g[ind_c], robot, x[ind_qᵢ])  # constraint evaluation at that point
+            ind_vars = range(1 + (k - 1) * nₓ, length=robot.n_q)  # indices of the decision variables
+            offset_con = (i - 1) * length_c + (m₁)
+            ind_cons = (1:length_c) .+ offset_con
+            @views ee_position!(g[ind_cons], robot, x[ind_vars])  # constraint evaluation at that point
         end
     end
 
-    ind_offset = 0
     jacIndexConsCB = Cint[]
+    jacIndexVarsCB = Cint[]
+
+    for i = 0:problem.num_knots - 2
+        offset_con = i * size(jacdata_dyn.jac, 1)
+        ind_cons = rowvals(jacdata_dyn.jac) .+ offset_con
+        append!(jacIndexConsCB, ind_cons)
+
+        for j = 1:size(jacdata_dyn.jac, 2)
+            ind_vars = fill(j + i * nₓ, length(nzrange(jacdata_dyn.jac, j)))
+            append!(jacIndexVarsCB, ind_vars)
+        end
+    end
+
+    @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
+
+    ind_offset = m₁
     for k = knots_con_ee
         inds = rowvals(problem.jacdata_ee_position.jac) .+ ind_offset
         ind_offset += size(problem.jacdata_ee_position.jac, 1)
         append!(jacIndexConsCB, inds)
     end
-    jacIndexConsCB = Cint.(jacIndexConsCB .+ (m₁))
 
-    jacIndexVarsCB = Cint[]
     for k = knots_con_ee
         vals = vcat([fill(j + (k - 1) * nₓ, length(nzrange(problem.jacdata_ee_position.jac, j)))
                      for j = 1:size(problem.jacdata_ee_position.jac, 2)]...)
         append!(jacIndexVarsCB, vals)
     end
-    jacIndexVarsCB = Cint.(jacIndexVarsCB)
 
     @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
+
+    @assert eltype(jacIndexConsCB) == eltype(jacIndexVarsCB) == Cint
 
     function eval_jac_g(x, mode, rows, cols, values)
         if mode == :Structure
@@ -103,10 +142,27 @@ function solve_with_ipopt(problem::Problem, robot::Robot)
                 cols[i] = c
             end
         else
+            # Dynamics constraints
+            for i = 0:problem.num_knots - 2
+                # Calculate the indices of the appropriate decision variables
+                ind_vars = range(1 + i * nₓ, length=size(jacdata_dyn.jac, 2))
+
+                # Evaluate the Jacobian at that point
+                jacdata_dyn(x[ind_vars])
+
+                # Pass the Jacobian to Knitro
+                offset_jac = i * jacdata_dyn.length_jac
+                ind_jac = (1:jacdata_dyn.length_jac) .+ offset_jac
+                values[ind_jac] = nonzeros(jacdata_dyn.jac)
+            end
+            offset_prev = (problem.num_knots - 1) * jacdata_dyn.length_jac
+
+            # End-effector constraints
             for (i, k) = enumerate(sort(collect(keys(problem.ee_pos))))
                 ind_qᵢ = range(1 + (k - 1) * nₓ, length=robot.n_q)  # indices of the decision variables
                 problem.jacdata_ee_position(x[ind_qᵢ])              # jacobian evaluation at that point
-                ind_jac = (1:problem.jacdata_ee_position.length_jac) .+ ((i - 1) * problem.jacdata_ee_position.length_jac)
+                offset_jac = (i - 1) * problem.jacdata_ee_position.length_jac + offset_prev
+                ind_jac = (1:problem.jacdata_ee_position.length_jac) .+ offset_jac
                 values[ind_jac] = nonzeros(problem.jacdata_ee_position.jac)  # pass jacobian to Knitro
             end
         end
@@ -128,7 +184,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot)
     # Create Problem  #
     # # # # # # # # # #
 
-    nele_jac = problem.jacdata_ee_position.length_jac * length(problem.ee_pos)
+    nele_jac = jacdata_dyn.length_jac * (problem.num_knots - 1) +
+               problem.jacdata_ee_position.length_jac * length(problem.ee_pos)
 
     prob = Ipopt.createProblem(n, vec(x_L), vec(x_U), m, g_L, g_U, nele_jac, 0,
                                eval_f, eval_g, eval_grad_f, eval_jac_g)
