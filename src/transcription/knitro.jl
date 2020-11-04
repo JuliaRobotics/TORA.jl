@@ -76,6 +76,7 @@ function solve_with_knitro(problem::Problem, robot::Robot;
                                      for i = 0:problem.num_knots - 2]...) .- 1)
 
         @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
+        @assert eltype(jacIndexConsCB) == eltype(jacIndexVarsCB) == Cint
 
         KNITRO.KN_set_cb_grad(kc, cb, cb_eval_ga_con,
                               nV=0, objGradIndexVars=C_NULL,
@@ -116,6 +117,7 @@ function solve_with_knitro(problem::Problem, robot::Robot;
         jacIndexVarsCB = Cint.(jacIndexVarsCB .- 1)
 
         @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
+        @assert eltype(jacIndexConsCB) == eltype(jacIndexVarsCB) == Cint
 
         KNITRO.KN_set_cb_grad(kc, cb, cb_eval_ga_con_ee,
                               nV=0, objGradIndexVars=C_NULL,

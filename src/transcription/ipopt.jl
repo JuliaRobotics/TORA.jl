@@ -70,6 +70,9 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         append!(g_U, vec(con_ee))
     end
 
+    @assert length(g_L) == length(g_U)
+    @assert eltype(g_L) == eltype(g_U) == Float64
+
     # dimension of each mesh point
     nₓ = robot.n_q + robot.n_v + robot.n_τ
 
@@ -212,12 +215,14 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     # Initial guess #
     # # # # # # # # #
 
-    # Set starting solution
-    if !isempty(initial_guess)
-        prob.x = vec(initial_guess)
-    else
-        prob.x = zeros(n)
+    if initial_guess |> isempty
+        initial_guess = zeros(n)
     end
+
+    # Set starting solution
+    prob.x = copy(initial_guess)
+
+    @assert length(prob.x) == length(initial_guess) == n
 
     # # # # # # # # #
     # User Options  #
