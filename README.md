@@ -1,40 +1,29 @@
 # TORA.jl
-Trajectory Optimisation for Robot Arms
 
-## Install Ipopt
+Trajectory Optimisation for Robot Arms.
 
-```
-sudo apt install gcc g++ gfortran git patch wget pkg-config liblapack-dev libmetis-dev
-```
+|                             **Documentation**                             |                                        **Build Status**                                         |
+| :-----------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------: |
+| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
 
-```
-git clone https://github.com/coin-or/Ipopt.git ~/Ipopt
-```
+## Documentation
 
-To compile the HSL code via the COIN-OR Tools project ThirdParty-HSL, run
-```
-cd ~/Ipopt
-git clone https://github.com/coin-or-tools/ThirdParty-HSL.git
-```
+- [**STABLE**][docs-stable-url] &mdash; **documentation of the most recently tagged version.**
+- [**DEVEL**][docs-dev-url] &mdash; *documentation of the in-development version.*
 
-```
-cd ~/Ipopt/ThirdParty-HSL
-tar -xvzf ~/Downloads/coinhsl-2019.05.21.tar.gz
-mv coinhsl-2019.05.21 coinhsl
-```
+[docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
+[docs-dev-url]: https://ferrolho.github.io/TORA.jl/dev
 
-```
-./configure
-make
-sudo make install
-```
+[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
+[docs-stable-url]: https://ferrolho.github.io/TORA.jl/stable
 
-Edit your `.bashrc` or `.zshrc` to add:
-```
-export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
-```
+[travis-img]: https://travis-ci.com/ferrolho/TORA.jl.svg?branch=master
+[travis-url]: https://travis-ci.com/ferrolho/TORA.jl
 
-```
-cd /usr/local/lib
-sudo ln -s libcoinhsl.so libhsl.so
-```
+[appveyor-img]: https://ci.appveyor.com/api/projects/status/xx7nimfpnl1r4gx0?svg=true
+[appveyor-url]: https://ci.appveyor.com/project/ferrolho/tora-jl
+
+[codecov-img]: https://codecov.io/gh/ferrolho/TORA.jl/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/ferrolho/TORA.jl
+
+[issues-url]: https://github.com/ferrolho/TORA.jl/issues
