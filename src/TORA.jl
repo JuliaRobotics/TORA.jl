@@ -18,6 +18,12 @@ using SparseDiffTools
 
 using Plots.PlotMeasures: px
 
+export
+    fix_joint_positions!,
+    fix_joint_velocities!,
+    fix_joint_torques!,
+    constrain_ee_position!
+
 greet() = print("Hello World!")
 
 # `Struct`-defining files

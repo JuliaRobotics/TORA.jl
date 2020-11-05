@@ -39,6 +39,11 @@ mutable struct Problem
     end
 end
 
+"""
+    fix_joint_positions!(problem, robot, knot, q)
+
+Returns a.
+"""
 function fix_joint_positions!(problem::Problem, robot::Robot, knot, q)
     @assert 1 <= knot <= problem.num_knots
     @assert all(robot.q_lo .<= q .<= robot.q_hi)
@@ -46,6 +51,11 @@ function fix_joint_positions!(problem::Problem, robot::Robot, knot, q)
     return problem
 end
 
+"""
+    fix_joint_velocities!(problem, robot, knot, v)
+
+To do.
+"""
 function fix_joint_velocities!(problem::Problem, robot::Robot, knot, v)
     @assert 1 <= knot <= problem.num_knots
     @assert all(robot.v_lo .<= v .<= robot.v_hi)
@@ -53,6 +63,11 @@ function fix_joint_velocities!(problem::Problem, robot::Robot, knot, v)
     return problem
 end
 
+"""
+    fix_joint_torques!(problem, robot, knot, τ)
+
+To do.
+"""
 function fix_joint_torques!(problem::Problem, robot::Robot, knot, τ)
     @assert 1 <= knot <= problem.num_knots - 1
     @assert all(robot.τ_lo .<= τ .<= robot.τ_hi)
@@ -60,7 +75,12 @@ function fix_joint_torques!(problem::Problem, robot::Robot, knot, τ)
     return problem
 end
 
-function constrain_ee_position!(problem::Problem, robot::Robot, knot, position)
+"""
+    constrain_ee_position!(problem, knot, position)
+
+To do.
+"""
+function constrain_ee_position!(problem::Problem, knot, position)
     @assert 1 <= knot <= problem.num_knots
     @assert length(position) == 3
     problem.ee_pos[knot] = position
