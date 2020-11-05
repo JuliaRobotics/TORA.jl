@@ -249,6 +249,24 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     addOption(prob, "tol", 1.0e-3)
     addOption(prob, "max_cpu_time", 10.0)
 
+    solver_log = SolverLog(n)
+
+    function intermediate(alg_mod::Int, iter_count::Int, obj_value::Float64, inf_pr::Float64, inf_du::Float64, mu::Float64,
+                          d_norm::Float64, regularization_size::Float64, alpha_du::Float64, alpha_pr::Float64, ls_trials::Int)
+        print("")  # Flush the output to the Jupyter notebook cell
+
+        x = zeros(n)  # Not implemented for Ipopt
+        abs_opt_error = 0  # Not implemented for Ipopt
+        fc_evals = 0  # Not implemented for Ipopt
+        ga_evals = 0  # Not implemented for Ipopt
+
+        update!(solver_log, x, inf_pr, abs_opt_error, obj_value, fc_evals, ga_evals)
+
+        return true
+    end
+
+    setIntermediateCallback(prob, intermediate)
+  
     # # Perform a derivative check.
     # addOption(prob, "derivative_test", "first-order")
 
@@ -262,5 +280,7 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     # println(prob.x)
     # println(prob.obj_val)
 
-    return cpu_time, prob.x
+    return cpu_time, prob.x, solver_log
 end
+
+export solve_with_ipopt

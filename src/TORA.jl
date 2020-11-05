@@ -10,6 +10,7 @@ using Ipopt
 using KNITRO
 using MeshCat
 using MeshCatMechanisms
+using NPZ
 using Plots
 using Random: rand!
 using RigidBodyDynamics
@@ -18,11 +19,7 @@ using SparseDiffTools
 
 using Plots.PlotMeasures: px
 
-export
-    fix_joint_positions!,
-    fix_joint_velocities!,
-    fix_joint_torques!,
-    constrain_ee_position!
+import Base: length
 
 greet() = print("Hello World!")
 
@@ -30,6 +27,7 @@ greet() = print("Hello World!")
 include("./jacobian_data.jl")
 include("./robot.jl")
 include("./problem.jl")
+include("./solver_log.jl")
 
 # Regular source code
 include("./constraints/dynamics.jl")

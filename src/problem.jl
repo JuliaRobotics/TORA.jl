@@ -96,3 +96,11 @@ function show_problem_info(problem::Problem)
     println("Number of knots with constrained joint torques ....... $(length(problem.fixed_τ))")
     println("Number of knots with constrained ee position ......... $(length(problem.ee_pos))")
 end
+
+export
+    Problem,
+    fix_joint_positions!,
+    fix_joint_velocities!,
+    fix_joint_torques!,
+    constrain_ee_position!,
+    show_problem_info

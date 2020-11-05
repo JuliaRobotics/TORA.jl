@@ -161,10 +161,20 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     KNITRO.KN_set_param(kc, KNITRO.KN_PARAM_FTOL, 1.0e-6)
     KNITRO.KN_set_param(kc, KNITRO.KN_PARAM_MAXTIMECPU, 10.0)
 
+    solver_log = SolverLog(n)
+
     function callbackNewPoint(kc, x, duals, userParams)
-        # This print forces a flush of Knitro's output to the Jupyter notebook cell.
-        # Without it the output will only show up after the solver has terminated.
-        print("")
+        print("")  # Flush the output to the Jupyter notebook cell
+
+        abs_feas_error = KNITRO.KN_get_abs_feas_error(kc)
+        abs_opt_error = KNITRO.KN_get_abs_opt_error(kc)
+        obj_value = KNITRO.KN_get_obj_value(kc)
+
+        fc_evals = KNITRO.KN_get_number_FC_evals(kc)
+        ga_evals = KNITRO.KN_get_number_GA_evals(kc)
+
+        update!(solver_log, x, abs_feas_error, abs_opt_error, obj_value, fc_evals, ga_evals)
+
         return 0
     end
     
@@ -190,5 +200,7 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     KNITRO.KN_free(kc)  # Delete the Knitro solver instance
     KNITRO.KN_release_license(lm)  # Free license manager
 
-    return cpu_time, x
+    return cpu_time, x, solver_log
 end
+
+export solve_with_knitro
