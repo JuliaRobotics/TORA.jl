@@ -1,6 +1,6 @@
 # TORA.jl
 
-Trajectory Optimisation for Robot Arms.
+*Trajectory Optimisation for Robot Arms*
 
 |                             **Documentation**                             |                                        **Build Status**                                         |
 | :-----------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------: |
