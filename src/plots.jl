@@ -20,7 +20,7 @@ function plot_results(problem::Problem, robot::Robot, x)
     )
 end
 
-function plot(solver_log::SolverLog)
+function plot_log(solver_log::SolverLog)
 
     plt_1 = plot(
         title="feasibility", title_location=:left,
@@ -60,4 +60,4 @@ end
 
 export
     plot_results,
-    plot
+    plot_log
