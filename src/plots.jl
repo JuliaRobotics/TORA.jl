@@ -1,3 +1,18 @@
+function play_trajectory(vis, problem, robot, x)
+    ee_positions = get_ee_path(problem, robot, x)
+    show_ee_path(vis, ee_positions)
+
+    nₓ = robot.n_q + robot.n_v + robot.n_τ  # dimension of each mesh point
+    ind_q = hcat([range(1 + (i * nₓ), length=robot.n_q) for i = (1:problem.num_knots) .- 1]...)
+    q_mat = x[ind_q]
+
+    ts = range(0, length=problem.num_knots, step=problem.dt)
+    qs = [q_mat[:, i] for i = 1:size(q_mat, 2)]
+
+    animation = MeshCat.Animation(robot.mvis, ts, qs)
+    setanimation!(robot.mvis, animation)
+end
+
 function plot_results(problem::Problem, robot::Robot, x)
     nₓ = robot.n_q + robot.n_v + robot.n_τ  # dimension of each mesh point
 
@@ -17,6 +32,7 @@ function plot_results(problem::Problem, robot::Robot, x)
         layout=grid(3,1),
         size=(600,3*400),
         left_margin=20px,
+        bottom_margin=20px,
     )
 end
 
@@ -59,5 +75,6 @@ function plot_log(solver_log::SolverLog)
 end
 
 export
+    play_trajectory,
     plot_results,
     plot_log

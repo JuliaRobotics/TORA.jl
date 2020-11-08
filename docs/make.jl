@@ -13,7 +13,8 @@ makedocs(
         ],
         "Manual" => [
             "methods.md",
-            "new_robot.md"
+            "advanced.md",
+            "new_robot.md",
         ]
     ]
 )

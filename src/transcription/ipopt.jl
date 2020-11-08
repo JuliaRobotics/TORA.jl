@@ -1,5 +1,8 @@
 function solve_with_ipopt(problem::Problem, robot::Robot;
-                          initial_guess::Array{Float64}=Float64[], use_inv_dyn::Bool=false, minimise_τ::Bool=false)
+                          initial_guess::Array{Float64}=Float64[],
+                          use_inv_dyn::Bool=false,
+                          minimise_τ::Bool=false,
+                          user_options::Dict=Dict())
     # # # # # # # # # # # # # # # #
     # Variables and their bounds  #
     # # # # # # # # # # # # # # # #
@@ -244,10 +247,12 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
 
     addOption(prob, "hessian_approximation", "limited-memory")
     addOption(prob, "mu_strategy", "adaptive")
-    addOption(prob, "linear_solver", "ma57")
-    addOption(prob, "ma57_pre_alloc", 2.0)
+    # addOption(prob, "linear_solver", "ma57")
+    # addOption(prob, "ma57_pre_alloc", 2.0)
     addOption(prob, "tol", 1.0e-3)
     addOption(prob, "max_cpu_time", 10.0)
+
+    foreach(x -> addOption(prob, x...), user_options)
 
     solver_log = SolverLog(n)
 

@@ -9,7 +9,7 @@ add https://github.com/ferrolho/TORA.jl
 
 After the command above, you are pretty much done.
 
-!!! tip "You are good to go."
+!!! tip "You are good to go"
 
     I recommend you to go and follow the [tutorial](@ref Tutorial) now.
 
@@ -28,12 +28,10 @@ This section will guide you through the steps required to install the [Harwell S
 
     The [Harwell Subroutine Library (HSL)](http://www.hsl.rl.ac.uk/ipopt/) provides a number of linear solvers that can be used in Ipopt. 
 
-!!! tip "Choose a good linear solver!"
+!!! tip "Choose a good linear solver"
     Picking a good linear solver is **extremely important** to maximise the performance of nonlinear solvers.
 
-    By default, Ipopt uses the `MA27` linear solver, but `MA27` is not up-to-date and can be quite slow.
-
-    `MA57` is a much better linear solver for highly-sparse problems (such as trajectory optimisation problem).
+    For example, the linear solver `MA27` is out dated and can be quite slow. `MA57` is a much better alternative, especially for highly-sparse problems (such as trajectory optimisation problem).
 
 First, install the following dependencies:
 ```
@@ -82,3 +80,6 @@ export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 ```
 
 ## Artelys Knitro
+
+!!! unknown "Not ready yet"
+    Documentation to be written.

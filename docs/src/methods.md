@@ -34,7 +34,7 @@ load!
 
 ```@docs
 plot_results
-plot
+plot_log
 ```
 
 ## Index
