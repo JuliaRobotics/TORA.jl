@@ -1,3 +1,5 @@
+using .KNITRO
+
 function solve_with_knitro(problem::Problem, robot::Robot;
                            initial_guess::Array{Float64}=Float64[], use_inv_dyn::Bool=false, minimise_τ::Bool=false)
     lm = KNITRO.LMcontext()  # Instantiate license manager

@@ -7,12 +7,12 @@ using Colors
 using ForwardDiff
 using GeometryTypes
 using Ipopt
-using KNITRO
 using MeshCat
 using MeshCatMechanisms
 using NPZ
 using Plots
 using Random: rand!
+using Requires
 using RigidBodyDynamics
 using SparseArrays
 using SparseDiffTools
@@ -20,6 +20,10 @@ using SparseDiffTools
 using Plots.PlotMeasures: px
 
 import Base: length
+
+function __init__()
+    @require KNITRO = "67920dd8-b58e-52a8-8622-53c4cffbe346" include("./transcription/knitro.jl")
+end
 
 greet() = print("Hello World!")
 
@@ -33,7 +37,6 @@ include("./solver_log.jl")
 include("./constraints/dynamics.jl")
 include("./constraints/end_effector.jl")
 include("./transcription/ipopt.jl")
-include("./transcription/knitro.jl")
 include("./plots.jl")
 
 end # module
