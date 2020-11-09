@@ -10,14 +10,12 @@ We are going to use TORA.jl as well as other packages to visualise and handle ri
 ```julia
 using TORA
 using MeshCat
-using MeshCatMechanisms
 using RigidBodyDynamics
 ```
 
 ```@setup example_1
 using TORA
 using MeshCat
-using MeshCatMechanisms
 using RigidBodyDynamics
 
 vis = Visualizer()
@@ -40,7 +38,7 @@ open(vis)
 
 It should look like this:
 
-![Empty viewer](../assets/screenshots/tutorial_01.png)
+![Empty viewer](./assets/screenshots/tutorial_01.png)
 
 ## Loading a Robot
 
@@ -48,7 +46,7 @@ After starting the viewer, we are now ready to load a robot. Let's load a [KUKA 
 
 ```@example example_1
 robot = TORA.create_robot_kuka_iiwa_14(vis)
-# hide
+nothing  # hide
 ```
 
 !!! info
@@ -56,7 +54,7 @@ robot = TORA.create_robot_kuka_iiwa_14(vis)
 
 Afterwards, you should be able to see the robot in the viewer:
 
-![Robot spawn](../assets/screenshots/tutorial_02.png)
+![Robot spawn](./assets/screenshots/tutorial_02.png)
 
 ## Creating a Problem
 
@@ -87,7 +85,7 @@ Suppose we want to optimize a motion with a total duration of *2 seconds*, and t
 ```@example example_2
 const duration = 2.0  # in seconds
 const hz = 150
-# hide
+nothing  # hide
 ```
 In that case, the time step duration would be
 ```@example example_2
@@ -101,7 +99,7 @@ hz * duration + 1
 Therefore, we create the problem by running
 ```@example example_1
 problem = TORA.Problem(robot, 301, 1/150)
-# hide
+nothing  # hide
 ```
 
 We can use [`TORA.show_problem_info`](@ref) to print a summary of relevant information of a [`TORA.Problem`](@ref).
@@ -140,7 +138,7 @@ Suppose we want to enforce zero joint velocities both at the very *start* of the
 # Constrain initial and final joint velocities to zero
 TORA.fix_joint_velocities!(problem, robot, 1, zeros(robot.n_v))
 TORA.fix_joint_velocities!(problem, robot, problem.num_knots, zeros(robot.n_v))
-# hide
+nothing  # hide
 ```
 
 Let's have a look at the problem summary output again:
@@ -193,7 +191,7 @@ First, let's define the static configuration:
 
 ```@example example_1
 initial_q = [0, 0, 0, -π/2, 0, 0, 0]
-# hide
+nothing  # hide
 ```
 
 We can visualize this configuration by running
@@ -205,7 +203,7 @@ set_configuration!(robot.mvis, configuration(robot.state))
 
 This will update the configuration of the robot in the viewer:
 
-![Robot initial configuration](../assets/screenshots/tutorial_03.png)
+![Robot initial configuration](./assets/screenshots/tutorial_03.png)
 
 We can now define the initial guess for the joint positions with that fixed configuration, repeated for every knot:
 
@@ -235,7 +233,7 @@ Notice that the dimensions are `21×301`, i.e., the dimension of each knot ($\ma
 We can flatten this matrix into a vector with
 ```@example example_1
 initial_guess = vec(initial_guess)
-# hide
+nothing  # hide
 ```
 
 !!! note "Remember"
@@ -245,22 +243,17 @@ As a very last step, we just need to truncate the last few values that correspon
 
 ```@example example_1
 initial_guess = initial_guess[1:end - robot.n_τ]
-# hide
+nothing  # hide
 ```
 
 ## Solving the Problem
 
-```@example example_1
-user_options = Dict("print_level" => 0)  # hide
-cpu_time, x, solver_log = TORA.solve_with_ipopt(problem, robot, initial_guess=initial_guess, user_options=user_options)  # hide
-# hide
-```
-
 Once we are happy with the problem definition, we just need to call solve and the optimization will start.
 
 ```@example example_1
+cpu_time, x, solver_log = TORA.solve_with_ipopt(problem, robot, initial_guess=initial_guess, user_options=Dict("print_level" => 0))  # hide
 cpu_time, x, solver_log = TORA.solve_with_ipopt(problem, robot, initial_guess=initial_guess)
-# hide
+nothing  # hide
 ```
 
 !!! info
@@ -271,7 +264,7 @@ cpu_time, x, solver_log = TORA.solve_with_ipopt(problem, robot, initial_guess=in
 When the optimization finishes, we can playback the trajectory on the robot shown in the viewer.
 
 ```julia
-play_trajectory(vis, problem, robot, x)
+TORA.play_trajectory(vis, problem, robot, x)
 ```
 
 You should be able to see this:

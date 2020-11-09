@@ -17,6 +17,17 @@ jobs:
     - stage: "Documentation"
       julia: 1.5
       os: linux
+      env:
+        - GKSwstype="100"  # See https://github.com/jheinen/GR.jl/issues/278
+      addons:
+        apt:
+          packages:
+            # Use GR with Travis
+            - libxt6
+            - libxrender1
+            - libxext6
+            - libgl1-mesa-glx
+            - libqt5widgets5
       script:
         - julia --color=yes --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
         - julia --color=yes --project=docs/ docs/make.jl
