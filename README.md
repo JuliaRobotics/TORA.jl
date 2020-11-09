@@ -1,6 +1,6 @@
 # TORA.jl
 
-*Trajectory Optimisation for Robot Arms*
+*Trajectory Optimization for Robot Arms*
 
 |                             **Documentation**                             |                                        **Build Status**                                         |
 | :-----------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------: |
@@ -8,7 +8,9 @@
 
 ## Installation
 
-The package can be installed with the Julia package manager. From the Julia REPL, type `]` to enter the Pkg REPL mode and run:
+The package can be installed with the Julia package manager.
+
+From the Julia REPL, type `]` to enter the Pkg REPL mode and run:
 ```
 pkg> add https://github.com/ferrolho/TORA.jl
 ```
@@ -25,7 +27,9 @@ julia> import Pkg; Pkg.add("https://github.com/ferrolho/TORA.jl")
 
 ## Contributions and Questions
 
-Contributions are very welcome, as are feature requests and suggestions. Please open an [issue][issues-url] if you encounter any problems.
+Contributions are very welcome, as are feature requests and suggestions.
+
+Please open an [issue][issues-url] if you encounter any problems.
 
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-dev-url]: https://ferrolho.github.io/TORA.jl/dev
@@ -33,7 +37,7 @@ Contributions are very welcome, as are feature requests and suggestions. Please 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://ferrolho.github.io/TORA.jl/stable
 
-[travis-img]: https://travis-ci.com/ferrolho/TORA.jl.svg?branch=main
+[travis-img]: https://travis-ci.com/ferrolho/TORA.jl.svg?branch=main&token=wa8UTQ2MKiuHJN6QRxtH
 [travis-url]: https://travis-ci.com/ferrolho/TORA.jl
 
 [appveyor-img]: https://ci.appveyor.com/api/projects/status/x?svg=true

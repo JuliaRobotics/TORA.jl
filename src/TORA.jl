@@ -11,13 +11,13 @@ using MeshCat
 using MeshCatMechanisms
 using NPZ
 using Plots
-using Random: rand!
 using Requires
 using RigidBodyDynamics
 using SparseArrays
 using SparseDiffTools
 
 using Plots.PlotMeasures: px
+using Random: rand!
 
 import Base: length
 

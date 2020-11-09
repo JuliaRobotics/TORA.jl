@@ -1,3 +1,6 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+MeshCat = "283c5d60-a78f-5afe-a0af-af636b173e11"
+MeshCatMechanisms = "6ad125db-dd91-5488-b820-c1df6aab299d"
+RigidBodyDynamics = "366cf18f-59d5-5db9-a4de-86a9f6786172"
 TORA = "a6da6c0f-f153-4ec6-bf42-6dc0ab733f84"

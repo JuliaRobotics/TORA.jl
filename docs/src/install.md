@@ -16,13 +16,12 @@ After the command above, you are pretty much done.
 The installation notes below need not be followed right now.
 At the end of the tutorial, I will refer you back here.
 
-
 ## HSL Routines for Ipopt
 
 This section will guide you through the steps required to install the [Harwell Subroutine Library (HSL)](http://www.hsl.rl.ac.uk/ipopt/).
 
 !!! info "Information about Ipopt and the HSL"
-    TORA.jl uses [Ipopt](https://github.com/coin-or/Ipopt) (**I**nterior-**P**oint **OPT**imizer) by default, a large-scale nonlinear optimisation solver.
+    TORA.jl uses [Ipopt](https://github.com/coin-or/Ipopt) (**I**nterior-**P**oint **OPT**imizer) by default, a large-scale nonlinear optimization solver.
 
     Ipopt itself depends on other solvers to handle systems of linear equations.
 
@@ -31,7 +30,7 @@ This section will guide you through the steps required to install the [Harwell S
 !!! tip "Choose a good linear solver"
     Picking a good linear solver is **extremely important** to maximise the performance of nonlinear solvers.
 
-    For example, the linear solver `MA27` is out dated and can be quite slow. `MA57` is a much better alternative, especially for highly-sparse problems (such as trajectory optimisation problem).
+    For example, the linear solver `MA27` is out dated and can be quite slow. `MA57` is a much better alternative, especially for highly-sparse problems (such as trajectory optimization problems).
 
 First, install the following dependencies:
 ```
