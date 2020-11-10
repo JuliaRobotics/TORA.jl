@@ -4,11 +4,15 @@ language: julia
 
 os:
   - linux
-  - osx
+  # - osx
 
 julia:
-  - nightly
+  # - nightly
   - 1
+
+codecov: true
+
+coveralls: true
 
 jobs:
   allow_failures:
