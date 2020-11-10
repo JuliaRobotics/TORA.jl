@@ -257,7 +257,7 @@ nothing  # hide
 ```
 
 !!! info
-    There exist additional parameters that you can pass to `TORA.solve_with_*`. See [Advanced Usage](@ref).
+    There exist additional parameters that you can pass to `TORA.solve_with_*`. See [Solver Interfaces](@ref).
 
 ## Showing the Results
 

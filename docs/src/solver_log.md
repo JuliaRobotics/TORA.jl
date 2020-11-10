@@ -1,4 +1,4 @@
-# SolverLog
+# Solver Log
 
 ```@autodocs
 Modules = [TORA]
@@ -9,7 +9,7 @@ Pages = ["solverlog.jl"]
 ## Index
 
 ```@index
-Pages = ["solverlog.md"]
+Pages = ["solver_log.md"]
 Order = [:type, :function]
 ```
 

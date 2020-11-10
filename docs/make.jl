@@ -12,9 +12,12 @@ makedocs(
             "tutorial.md",
         ],
         "Manual" => [
-            "solverlog.md",
-            "methods.md",
-            "advanced.md",
+            "robot.md",
+            "problem.md",
+            "solver_interfaces.md",
+            "solver_log.md",
+        ],
+        "Advanced" => [
             "new_robot.md",
         ]
     ]

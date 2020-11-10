@@ -1,3 +1,11 @@
+"""
+A `Robot` represents a mechanism, its state, and other relevant objects.
+
+# Relevant fields in `Robot`
+- The arrays `q_lo`, `q_hi`, `v_lo`, `v_hi`, `τ_lo`, `τ_hi` store the lower and upper bounds of the joint positions, velocities, and torques, respectively.
+- The number of generalized coordinates, generalized velocities, and actuated joints are stored in `n_q`, `n_v`, `n_τ`, respectively.
+- The end-effector frame is stored in `frame_ee`.
+"""
 struct Robot
     urdfpath::String
     mechanism::Mechanism
@@ -19,6 +27,11 @@ struct Robot
 
     frame_ee::CartesianFrame3D  # End-effector frame
 
+    @doc """
+        Robot(urdfpath, mechanism, frame_ee, mvis)
+
+    Create a new `Robot`.
+    """
     function Robot(urdfpath::String,
                    mechanism::Mechanism,
                    frame_ee::CartesianFrame3D,
@@ -55,6 +68,11 @@ struct Robot
     end
 end
 
+"""
+    create_robot_kuka_iiwa_14(vis)
+
+Create a new [KUKA LBR iiwa 14](https://www.kuka.com/en-gb/products/robotics-systems/industrial-robots/lbr-iiwa) robot.
+"""
 function create_robot_kuka_iiwa_14(vis::Visualizer)
     package_path = joinpath(@__DIR__, "..", "iiwa_stack")
     urdfpath = joinpath(@__DIR__, "..", "robots", "iiwa14.urdf")

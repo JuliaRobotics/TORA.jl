@@ -1,3 +1,17 @@
+"""
+A `Problem` stores the high-level description of a motion planning problem.
+
+This is the main structure of the package.
+The idea is for users to start with an empty problem for a given robot.
+Then, in order to specify the requirements for the motion they want to compute, they can add different types of constraints, one by one.
+See [Creating a Problem](@ref) and [Defining Constraints](@ref) for detailed examples.
+
+Eventually, the problem becomes a complex description with all the requirements.
+Once the description is finalized, it can be optimized.
+This happens in one of the `TORA.solve_with_*` functions, which does the heavy-lifting of converting a `Problem` (the high-level description) into an [NLP](https://en.wikipedia.org/wiki/Nonlinear_programming) problem that can be solved using off-the-shelf solvers, such as [Ipopt](https://github.com/coin-or/Ipopt) and [Knitro](https://www.artelys.com/solvers/knitro/).
+
+See also: [`solve_with_ipopt`](@ref), [`solve_with_knitro`](@ref)
+"""
 mutable struct Problem
     num_knots::Int  # Total number of knots
     dt::Float64  # Time step between two knots
@@ -13,7 +27,19 @@ mutable struct Problem
     jacdata_inv_dyn::JacobianData
     jacdata_ee_position::JacobianData
 
-    function Problem(robot, num_knots, dt)
+    @doc """
+        Problem(robot, num_knots, dt)
+
+    Create an empty `Problem`.
+
+    # Arguments
+    - `robot::Robot`: the robot associated with this `Problem`.
+    - `num_knots::Int`: the number of knots used to represent the motion.
+    - `dt::Float64`: the time step duration between each two consecutive knots.
+
+    See also: [`show_problem_info`](@ref)
+    """
+    function Problem(robot::Robot, num_knots::Int, dt::Float64)
         @assert num_knots > 0
         @assert dt > 0
 
@@ -42,7 +68,9 @@ end
 """
     fix_joint_positions!(problem, robot, knot, q)
 
-Returns a.
+Fix the joint positions of the `robot` at a specific `knot`.
+
+See also: [`fix_joint_velocities!`](@ref), [`fix_joint_torques!`](@ref)
 """
 function fix_joint_positions!(problem::Problem, robot::Robot, knot, q)
     @assert 1 <= knot <= problem.num_knots
@@ -54,7 +82,9 @@ end
 """
     fix_joint_velocities!(problem, robot, knot, v)
 
-To do.
+Fix the joint velocities of the `robot` at a specific `knot`.
+
+See also: [`fix_joint_positions!`](@ref), [`fix_joint_torques!`](@ref)
 """
 function fix_joint_velocities!(problem::Problem, robot::Robot, knot, v)
     @assert 1 <= knot <= problem.num_knots
@@ -66,7 +96,9 @@ end
 """
     fix_joint_torques!(problem, robot, knot, τ)
 
-To do.
+Fix the joint torques of the `robot` at a specific `knot`.
+
+See also: [`fix_joint_positions!`](@ref), [`fix_joint_velocities!`](@ref)
 """
 function fix_joint_torques!(problem::Problem, robot::Robot, knot, τ)
     @assert 1 <= knot <= problem.num_knots - 1
@@ -78,7 +110,9 @@ end
 """
     constrain_ee_position!(problem, knot, position)
 
-To do.
+Fix the end-efector positions of the `robot` at a specific `knot`.
+
+See also: [`fix_joint_positions!`](@ref), [`fix_joint_velocities!`](@ref), [`fix_joint_torques!`](@ref)
 """
 function constrain_ee_position!(problem::Problem, knot, position)
     @assert 1 <= knot <= problem.num_knots
@@ -87,6 +121,11 @@ function constrain_ee_position!(problem::Problem, knot, position)
     return problem
 end
 
+"""
+    show_problem_info(problem)
+
+Output a summary of the problem, including the number of knots with constraints.
+"""
 function show_problem_info(problem::Problem)
     t = (problem.num_knots - 1) * problem.dt
 

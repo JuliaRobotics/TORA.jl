@@ -30,6 +30,8 @@ mutable struct SolverLog
 
     # Arguments
     - `N::Int`: the total number of decision variables of the NLP.
+
+    See also: [`update!`](@ref)
     """
     function SolverLog(N::Int)
         new(Array{Float64,2}(undef, N, 0),
@@ -87,6 +89,8 @@ end
     save(log, file)
 
 Save a [`SolverLog`](@ref) to an `.npz` file.
+
+See also: [`load!`](@ref)
 """
 function save(log::SolverLog, file::String)
     npzwrite(file, Dict(
@@ -104,6 +108,8 @@ end
     load!(log, file)
 
 Load an `.npz` file and store it in a [`SolverLog`](@ref) object.
+
+See also: [`save`](@ref)
 """
 function load!(log::SolverLog, file::String)
     data = npzread(file)
