@@ -171,14 +171,12 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     function callbackNewPoint(kc, x, duals, userParams)
         print("")  # Flush the output to the Jupyter notebook cell
 
-        abs_feas_error = KNITRO.KN_get_abs_feas_error(kc)
-        abs_opt_error = KNITRO.KN_get_abs_opt_error(kc)
-        obj_value = KNITRO.KN_get_obj_value(kc)
-
-        fc_evals = KNITRO.KN_get_number_FC_evals(kc)
-        ga_evals = KNITRO.KN_get_number_GA_evals(kc)
-
-        update!(solver_log, x, abs_feas_error, abs_opt_error, obj_value, fc_evals, ga_evals)
+        update!(solver_log, x=x,
+                abs_feas_error=KNITRO.KN_get_abs_feas_error(kc),
+                abs_opt_error=KNITRO.KN_get_abs_opt_error(kc),
+                obj_value=KNITRO.KN_get_obj_value(kc),
+                fc_evals=KNITRO.KN_get_number_FC_evals(kc),
+                ga_evals=KNITRO.KN_get_number_GA_evals(kc))
 
         return 0
     end

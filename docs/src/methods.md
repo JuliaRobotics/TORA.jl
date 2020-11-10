@@ -20,16 +20,6 @@ constrain_ee_position!
 show_problem_info
 ```
 
-## Solver Log
-
-```@docs
-SolverLog
-update!
-length
-save
-load!
-```
-
 ## Plot Utilities
 
 ```@docs

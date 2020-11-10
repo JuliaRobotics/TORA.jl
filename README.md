@@ -2,9 +2,9 @@
 
 *Trajectory Optimization for Robot Arms*
 
-|                             **Documentation**                             |                                        **Build Status**                                         |
-| :-----------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------: |
-| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] |
+|                             **Documentation**                             |                        **Build Status**                         |                            **Coverage**                             |
+| :-----------------------------------------------------------------------: | :-------------------------------------------------------------: | :-----------------------------------------------------------------: |
+| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] | [![][codecov-img]][codecov-url] [![][coveralls-img]][coveralls-url] |
 
 ## Installation
 
@@ -40,10 +40,13 @@ Please open an [issue][issues-url] if you encounter any problems.
 [travis-img]: https://travis-ci.com/ferrolho/TORA.jl.svg?branch=main&token=wa8UTQ2MKiuHJN6QRxtH
 [travis-url]: https://travis-ci.com/ferrolho/TORA.jl
 
-[appveyor-img]: https://ci.appveyor.com/api/projects/status/x?svg=true
+[appveyor-img]: https://ci.appveyor.com/api/projects/status/hxhsgmjeloa2rei6?svg=true
 [appveyor-url]: https://ci.appveyor.com/project/ferrolho/tora-jl
 
-[codecov-img]: https://codecov.io/gh/ferrolho/TORA.jl/branch/main/graph/badge.svg
+[codecov-img]: https://codecov.io/gh/ferrolho/TORA.jl/branch/main/graph/badge.svg?token=7KDVBWH74I
 [codecov-url]: https://codecov.io/gh/ferrolho/TORA.jl
+
+[coveralls-img]: https://coveralls.io/repos/github/ferrolho/TORA.jl/badge.svg?branch=main
+[coveralls-url]: https://coveralls.io/github/ferrolho/TORA.jl?branch=main
 
 [issues-url]: https://github.com/ferrolho/TORA.jl/issues

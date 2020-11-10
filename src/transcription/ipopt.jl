@@ -260,12 +260,7 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
                           d_norm::Float64, regularization_size::Float64, alpha_du::Float64, alpha_pr::Float64, ls_trials::Int)
         print("")  # Flush the output to the Jupyter notebook cell
 
-        x = zeros(n)  # Not implemented for Ipopt
-        abs_opt_error = 0  # Not implemented for Ipopt
-        fc_evals = 0  # Not implemented for Ipopt
-        ga_evals = 0  # Not implemented for Ipopt
-
-        update!(solver_log, x, inf_pr, abs_opt_error, obj_value, fc_evals, ga_evals)
+        update!(solver_log, abs_feas_error=inf_pr, obj_value=obj_value)
 
         return true
     end

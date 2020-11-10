@@ -31,7 +31,7 @@ greet() = print("Hello World!")
 include("./jacobian_data.jl")
 include("./robot.jl")
 include("./problem.jl")
-include("./solver_log.jl")
+include("./solverlog.jl")
 
 # Regular source code
 include("./constraints/dynamics.jl")
