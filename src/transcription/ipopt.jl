@@ -225,7 +225,7 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         @assert length(indexVars) == length(coefs)
 
         eval_f = function(x)
-            # Minimise τ, i.e., the necessary joint torques.
+            # Minimize τ, i.e., the necessary joint torques.
             return sum(coefs .* x[indexVars] .* x[indexVars])
         end
 
@@ -255,10 +255,10 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         initial_guess = zeros(n)
     end
 
+    @assert length(initial_guess) == n
+
     # Set starting solution
     prob.x = copy(initial_guess)
-
-    @assert length(prob.x) == length(initial_guess) == n
 
     # # # # # # # # #
     # User Options  #

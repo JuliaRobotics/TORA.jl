@@ -1,3 +1,6 @@
 [submodule "iiwa_stack"]
 	path = iiwa_stack
 	url = https://github.com/IFL-CAMP/iiwa_stack
+[submodule "ros_kortex"]
+	path = ros_kortex
+	url = https://github.com/Kinovarobotics/ros_kortex

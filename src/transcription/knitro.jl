@@ -137,7 +137,7 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     # # # # # # #
 
     if minimise_τ
-        # Minimise τ, i.e., the necessary joint torques.
+        # Minimize τ, i.e., the necessary joint torques.
         indexVars, coefs = Cint.(vec(ind_τ) .- 1), fill(1 / (problem.num_knots - 1), n3)
         KNITRO.KN_add_obj_quadratic_struct(kc, indexVars, indexVars, coefs)
 
@@ -148,11 +148,14 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     # Initial guess #
     # # # # # # # # #
 
-    if !isempty(initial_guess)
-        KNITRO.KN_set_var_primal_init_values(kc, vec(initial_guess))
-    else
-        KNITRO.KN_set_var_primal_init_values(kc, zeros(n))
+    if initial_guess |> isempty
+        initial_guess = zeros(n)
     end
+
+    @assert length(initial_guess) == n
+
+    # Set starting solution
+    KNITRO.KN_set_var_primal_init_values(kc, initial_guess)
 
     # # # # # # # # #
     # User Options  #

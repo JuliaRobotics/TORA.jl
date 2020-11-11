@@ -5,7 +5,7 @@
 
 ## Setup
 
-We are going to use TORA.jl as well as other packages to visualise and handle rigid-body mechanisms.
+We are going to use TORA.jl as well as other packages to visualize and handle rigid-body mechanisms.
 
 ```julia
 using TORA
@@ -50,7 +50,7 @@ nothing  # hide
 ```
 
 !!! info
-    To load a different robot, check the [Adding a New Robot](@ref Adding-a-new-robot) page of the documentation.
+    To load a different robot, check the [Adding a New Robot](@ref Adding-a-New-Robot) page of the documentation.
 
 Afterwards, you should be able to see the robot in the viewer:
 
@@ -69,7 +69,7 @@ where $t_I$ and $t_F$ are the start and final instants, respectively.
 This division results in $M = N + 1$ discrete *mesh points* (a.k.a. *knots*), for each of which TORA.jl discretizes the states of the system, as well as the control inputs.
 
 [^1]:
-    Betts, John T. [*Practical Methods for Optimal Control and Estimation Using Nonlinear Programming*](https://epubs.siam.org/doi/book/10.1137/1.9780898718577). Society for Industrial and Applied Mathematics, 2010.
+    Betts, John T. [*Practical Methods for Optimal Control and Estimation Using Nonlinear Programming*](https://epubs.siam.org/doi/book/10.1137/1.9780898718577). SIAM, 2010.
 
 [^2]:
     Direct Transcription does not necessarily require equally-spaced segments.

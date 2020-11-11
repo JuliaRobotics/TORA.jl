@@ -83,7 +83,31 @@ function create_robot_kuka_iiwa_14(vis::Visualizer)
 
     urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
     mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
-    # setelement!(mvis, frame_ee)  # Visualise a triad at the end-effector
+    # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
 
     Robot(urdfpath, mechanism, frame_ee, mvis)
 end
+
+"""
+    create_robot_kinova_gen3_lite(vis)
+
+Create a new [Kinova Gen3 lite](https://www.kinovarobotics.com/en/products/gen3-lite-robot) robot.
+"""
+function create_robot_kinova_gen3_lite(vis::Visualizer)
+    package_path = joinpath(@__DIR__, "..", "ros_kortex")
+    urdfpath = joinpath(@__DIR__, "..", "robots", "gen3_lite_gen3_lite_2f.urdf")
+
+    mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
+    frame_ee = default_frame(findbody(mechanism, "tool_frame"))
+    remove_fixed_tree_joints!(mechanism)
+
+    urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+    mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+    # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+
+    Robot(urdfpath, mechanism, frame_ee, mvis)
+end
+
+export
+    create_robot_kuka_iiwa_14,
+    create_robot_kinova_gen3_lite
