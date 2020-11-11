@@ -5,7 +5,7 @@ This tutorial explains how to use TORA.jl with a robot that has not yet been add
 As an example, I will demonstrate how to add the [Kinova Gen3 lite](https://www.kinovarobotics.com/en/products/gen3-lite-robot) robot.
 
 !!! tip
-    If you are adding a widely available robot, consider creating a [fork](https://guides.github.com/activities/forking/) of Tora.jl and following this guide such that you can submit a [Pull Request](https://guides.github.com/activities/forking/#making-a-pull-request) once you are done.
+    If you are adding a widely available robot, consider creating a [fork](https://guides.github.com/activities/forking/) of TORA.jl and following this guide such that you can submit a [Pull Request](https://guides.github.com/activities/forking/#making-a-pull-request) once you are done.
 
 ## Add the Robot Submodule
 
@@ -60,7 +60,7 @@ I am not very interested in planning a trajectory for each of these joints with 
 
 ## Write the Create Method
 
-The last thing I need to do is write a method wrapping the `Robot` constructor in `src/robot.jl`.
+The last thing I need to do is write a method wrapping the [`Robot`](@ref) constructor in `src/robot.jl`.
 
 ```julia
 function create_robot_kinova_gen3_lite(vis::Visualizer)

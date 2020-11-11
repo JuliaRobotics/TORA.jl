@@ -19,6 +19,7 @@ makedocs(
         ],
         "Advanced" => [
             "new_robot.md",
+            "how_it_works.md",
         ]
     ]
 )

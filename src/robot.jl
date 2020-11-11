@@ -109,5 +109,6 @@ function create_robot_kinova_gen3_lite(vis::Visualizer)
 end
 
 export
+    Robot,
     create_robot_kuka_iiwa_14,
     create_robot_kinova_gen3_lite
