@@ -1,10 +1,10 @@
 # TORA.jl
 
+<img src="./docs/src/assets/logo.svg" alt="TORA.jl logo" width="280px">
+
 *Trajectory Optimization for Robot Arms*
 
-|                             **Documentation**                             |                        **Build Status**                         |                            **Coverage**                             |
-| :-----------------------------------------------------------------------: | :-------------------------------------------------------------: | :-----------------------------------------------------------------: |
-| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] | [![][codecov-img]][codecov-url] [![][coveralls-img]][coveralls-url] |
+[![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] [![][coveralls-img]][coveralls-url] 
 
 ## Installation
 
