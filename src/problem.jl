@@ -136,10 +136,34 @@ function show_problem_info(problem::Problem)
     println("Number of knots with constrained ee position ......... $(length(problem.ee_pos))")
 end
 
+"""
+    export_trajectory(file, problem, robot, x)
+
+Export a trajectory to a `.npz` file.
+"""
+function export_trajectory(file::String, problem::Problem, robot::Robot, x)
+    nₓ = robot.n_q + robot.n_v + robot.n_τ  # dimension of each mesh point
+
+    ts = range(0, length=problem.num_knots, step=problem.dt)
+
+    # Helper ranges
+    ind_q = hcat([range(1 + (i * nₓ)                        , length=robot.n_q) for i = (1:problem.num_knots    ) .- 1]...)
+    ind_v = hcat([range(1 + (i * nₓ) + robot.n_q            , length=robot.n_v) for i = (1:problem.num_knots    ) .- 1]...)
+    ind_τ = hcat([range(1 + (i * nₓ) + robot.n_q + robot.n_v, length=robot.n_τ) for i = (1:problem.num_knots - 1) .- 1]...)
+
+    npzwrite(file, Dict(
+        "ts" => ts,
+        "qs" => x[ind_q],
+        "vs" => x[ind_v],
+        "τs" => x[ind_τ],
+    ))
+end
+
 export
     Problem,
     fix_joint_positions!,
     fix_joint_velocities!,
     fix_joint_torques!,
     constrain_ee_position!,
-    show_problem_info
+    show_problem_info,
+    export_trajectory
