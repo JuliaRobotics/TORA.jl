@@ -4,7 +4,7 @@ First things first: install [Julia](https://julialang.org/). You can follow my t
 
 To install TORA.jl, start Julia and enter `Pkg` mode by pressing `]`, and then run
 ```
-add https://github.com/ferrolho/TORA.jl
+add https://github.com/JuliaRobotics/TORA.jl
 ```
 
 After the command above, you are pretty much done.

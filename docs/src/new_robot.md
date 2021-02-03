@@ -40,7 +40,7 @@ Now I need to open the `.urdf` with a text editor, and look for the end-effector
 I will note down the name of this frame, as I will need it soon.
 
 !!! note
-    The default `.urdf` of other robots may not come with a tool frame. In such cases, you can add one manually. Look at other existing `.urdf` files for examples in [TORA.jl/robots](https://github.com/ferrolho/TORA.jl/tree/main/robots).
+    The default `.urdf` of other robots may not come with a tool frame. In such cases, you can add one manually. Look at other existing `.urdf` files for examples in [TORA.jl/robots](https://github.com/JuliaRobotics/TORA.jl/tree/main/robots).
 
 As I scroll through the `.urdf`, I notice that this robot has two actuated fingers:
 

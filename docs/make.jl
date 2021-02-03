@@ -25,6 +25,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/ferrolho/TORA.jl",
+    repo = "github.com/JuliaRobotics/TORA.jl",
     devbranch = "main",
 )

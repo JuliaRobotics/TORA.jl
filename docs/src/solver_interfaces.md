@@ -49,7 +49,7 @@ The *default value* for `minimise_τ` is `false`. I.e., the default behaviour is
 !!! note
     Currently, TORA.jl provides only one cost function: minimization of torques.
     Different cost functions can be used, but they need to be specified by the user manually.
-    Feel free to open a [New Issue](https://github.com/ferrolho/TORA.jl/issues/new) on GitHub if you need some pointers on how and where to get started.
+    Feel free to open a [New Issue](https://github.com/JuliaRobotics/TORA.jl/issues/new) on GitHub if you need some pointers on how and where to get started.
 
 ### Solver User Options
 

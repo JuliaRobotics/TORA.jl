@@ -12,12 +12,12 @@ The package can be installed with the Julia package manager.
 
 From the Julia REPL, type `]` to enter the Pkg REPL mode and run:
 ```
-pkg> add https://github.com/ferrolho/TORA.jl
+pkg> add https://github.com/JuliaRobotics/TORA.jl
 ```
 
 Or, equivalently, via the Pkg API:
 ```
-julia> import Pkg; Pkg.add("https://github.com/ferrolho/TORA.jl")
+julia> import Pkg; Pkg.add("https://github.com/JuliaRobotics/TORA.jl")
 ```
 
 ## Documentation
@@ -32,10 +32,10 @@ Contributions are very welcome, as are feature requests and suggestions.
 Please open an [issue][issues-url] if you encounter any problems.
 
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[docs-dev-url]: https://ferrolho.github.io/TORA.jl/dev
+[docs-dev-url]: https://juliarobotics.org/TORA.jl/dev
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://ferrolho.github.io/TORA.jl/stable
+[docs-stable-url]: https://juliarobotics.org/TORA.jl/stable
 
 [travis-img]: https://travis-ci.com/ferrolho/TORA.jl.svg?branch=main&token=wa8UTQ2MKiuHJN6QRxtH
 [travis-url]: https://travis-ci.com/ferrolho/TORA.jl
@@ -49,4 +49,4 @@ Please open an [issue][issues-url] if you encounter any problems.
 [coveralls-img]: https://coveralls.io/repos/github/ferrolho/TORA.jl/badge.svg?branch=main
 [coveralls-url]: https://coveralls.io/github/ferrolho/TORA.jl?branch=main
 
-[issues-url]: https://github.com/ferrolho/TORA.jl/issues
+[issues-url]: https://github.com/JuliaRobotics/TORA.jl/issues

@@ -3,7 +3,7 @@
 This tutorial assumes you have already installed Julia and TORA.jl. See [Installation](@ref).
 
 !!! info
-    A [Jupyter](https://jupyter.org/) notebook of this tutorial is available [here](https://github.com/ferrolho/TORA.jl/blob/main/notebooks/Tutorial.ipynb).
+    A [Jupyter](https://jupyter.org/) notebook of this tutorial is available [here](https://github.com/JuliaRobotics/TORA.jl/blob/main/notebooks/Tutorial.ipynb).
 
 ## Setup
 
