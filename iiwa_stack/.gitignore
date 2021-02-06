@@ -1,0 +1,79 @@
+﻿# Lines that start with '#' are comments.
+
+# Backup and data files
+eg/eg.*
+*~
+*.bak
+*.off
+*.x
+x.*
+r
+x
+x?
+r?
+
+#Misc
+
+lbr_fri/fri
+
+# patch results
+*.rej
+
+# Build products
+tmp/*
+build/Makefile*
+build/CMakeFiles
+build/CMakeCache.txt
+build/*/Makefile*
+build/*/object_script*
+build/*/Release/*
+build/*/Debug/*
+build/*/MinSizeRel/*
+build/*/RelWithDebInfo/*
+build
+
+*#
+*.#
+*.obj
+*.zip
+*.a
+*.dll
+*.lib
+*.exe
+*.bag
+*.o
+*.md5sum
+
+# Qt files
+*.pro.user
+
+# DevStudio files
+*.bsc
+*.ncb
+*.pdb
+*.suo
+*.user
+*.ilk
+
+# CVS files
+CVS/*
+*/CVS/*
+*/*/CVS/*
+*/*/*/CVS/*
+*.cvsignore
+
+# Vim files
+*.swp
+
+# Other files
+working/
+Status API Training Shop Blog About
+© 2014 GitHub, Inc. Terms Privacy Security Contact
+
+/CMakeLists.txt
+*.kdev4
+*.project
+*.cproject
+/config
+*.kdev_include_paths
+*.orig
