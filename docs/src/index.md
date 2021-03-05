@@ -34,3 +34,14 @@ Currently, the highlights of TORA.jl are as follows:
 
 Overall, the *direct transcription* technique implemented in TORA.jl stems from:
 - Betts, John T. [*Practical Methods for Optimal Control and Estimation Using Nonlinear Programming*](https://epubs.siam.org/doi/book/10.1137/1.9780898718577). SIAM, 2010.
+
+## Citing this library
+
+```bibtex
+@misc{torajl,
+  author = {Henrique Ferrolho and contributors},
+  title  = {\href{https://github.com/JuliaRobotics/TORA.jl}{TORA.jl}},
+  url    = {https://github.com/JuliaRobotics/TORA.jl},
+  year   = 2020
+}
+```
