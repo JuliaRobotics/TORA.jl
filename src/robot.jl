@@ -6,20 +6,20 @@ A `Robot` represents a mechanism, its state, and other relevant objects.
 - The number of generalized coordinates, generalized velocities, and actuated joints are stored in `n_q`, `n_v`, `n_τ`, respectively.
 - The end-effector frame is stored in `frame_ee`.
 """
-struct Robot
+struct Robot{T,T_SC,n_q,n_v,n_τ}
     urdfpath::String
-    mechanism::Mechanism
-    state::MechanismState
-    statecache::StateCache
-    dynamicsresultcache::DynamicsResultCache
+    mechanism::Mechanism{T}
+    state::MechanismState{T}
+    statecache::T_SC
+    dynamicsresultcache::DynamicsResultCache{T}
     mvis::MechanismVisualizer
 
-    q_lo::Array{Float64}
-    q_hi::Array{Float64}
-    v_lo::Array{Float64}
-    v_hi::Array{Float64}
-    τ_lo::Array{Float64}
-    τ_hi::Array{Float64}
+    q_lo::Array{T}
+    q_hi::Array{T}
+    v_lo::Array{T}
+    v_hi::Array{T}
+    τ_lo::Array{T}
+    τ_hi::Array{T}
 
     n_q::Int64  # Number of generalized coordinates
     n_v::Int64  # Number of generalized velocities
@@ -47,7 +47,13 @@ struct Robot
         τ_lo = [lim for joint in joints(mechanism) for lim in map(x -> x.lower,   effort_bounds(joint))]
         τ_hi = [lim for joint in joints(mechanism) for lim in map(x -> x.upper,   effort_bounds(joint))]
 
-        new(
+        n_q = num_positions(mechanism)
+        n_v = num_velocities(mechanism)
+        n_τ = num_velocities(mechanism)
+
+        T_SC = typeof(statecache)
+
+        new{Float64,T_SC,n_q,n_v,n_τ}(
             urdfpath,
             mechanism,
             state,
@@ -60,9 +66,9 @@ struct Robot
             v_hi,
             τ_lo,
             τ_hi,
-            num_positions(mechanism),
-            num_velocities(mechanism),
-            num_velocities(mechanism),
+            n_q,
+            n_v,
+            n_τ,
             frame_ee
         )
     end

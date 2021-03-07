@@ -15,6 +15,7 @@ using Requires
 using RigidBodyDynamics
 using SparseArrays
 using SparseDiffTools
+using StaticArrays
 
 using Plots.PlotMeasures: px
 using Random: rand!

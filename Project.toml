@@ -20,6 +20,7 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 RigidBodyDynamics = "366cf18f-59d5-5db9-a4de-86a9f6786172"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 SparseDiffTools = "47a9eef4-7e08-11e9-0b38-333d64bd3804"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
 Colors = "0.12"
@@ -35,4 +36,5 @@ Requires = "1"
 Revise = "3"
 RigidBodyDynamics = "2"
 SparseDiffTools = "1"
+StaticArrays = "1"
 julia = "1.6"
