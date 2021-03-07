@@ -14,6 +14,16 @@ function semi_implicit_euler_step(qᵢ, vᵢ, v̇ᵢ, h)
      vᵢ₊₁]
 end
 
+@inline function semi_implicit_euler_step!(dx, qᵢ, vᵢ, v̇ᵢ, h, n_q, n_v)
+    vᵢ₊₁ = vᵢ .+ h .* v̇ᵢ
+    qᵢ₊₁ = qᵢ .+ h .* vᵢ₊₁
+
+    @. dx[(1:n_q)       ] = qᵢ₊₁
+    @. dx[(1:n_v) .+ n_q] = vᵢ₊₁
+
+    return dx
+end
+
 function forward_dynamics_defects!(defects, robot, x::AbstractArray{T}, h) where {T}
     # Indices of the decision variables
     ind_qᵢ   = (1:robot.n_q)
