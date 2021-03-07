@@ -5,7 +5,7 @@ using LinearAlgebra; BLAS.set_num_threads(1)
 
 using Colors
 using ForwardDiff
-using GeometryTypes
+using GeometryBasics
 using Ipopt
 using MeshCat
 using MeshCatMechanisms
