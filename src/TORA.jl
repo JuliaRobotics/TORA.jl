@@ -1,8 +1,5 @@
 module TORA
 
-# Workaround for: https://github.com/JuliaRobotics/RigidBodyDynamics.jl/issues/500
-using LinearAlgebra; BLAS.set_num_threads(1)
-
 using Colors
 using ForwardDiff
 using GeometryBasics
