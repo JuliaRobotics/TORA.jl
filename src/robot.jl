@@ -14,12 +14,12 @@ struct Robot{T,T_SC,n_q,n_v,n_τ}
     dynamicsresultcache::DynamicsResultCache{T}
     mvis::MechanismVisualizer
 
-    q_lo::Array{T}
-    q_hi::Array{T}
-    v_lo::Array{T}
-    v_hi::Array{T}
-    τ_lo::Array{T}
-    τ_hi::Array{T}
+    q_lo::Vector{T}
+    q_hi::Vector{T}
+    v_lo::Vector{T}
+    v_hi::Vector{T}
+    τ_lo::Vector{T}
+    τ_hi::Vector{T}
 
     n_q::Int64  # Number of generalized coordinates
     n_v::Int64  # Number of generalized velocities

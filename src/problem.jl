@@ -16,9 +16,9 @@ mutable struct Problem
     num_knots::Int  # Total number of knots
     dt::Float64  # Time step between two knots
 
-    fixed_q::Dict{Int64,Array{Float64}}  # Fixed joint positions
-    fixed_v::Dict{Int64,Array{Float64}}  # Fixed joint velocities
-    fixed_τ::Dict{Int64,Array{Float64}}  # Fixed joint torques
+    fixed_q::Dict{Int64,Vector{Float64}}  # Fixed joint positions
+    fixed_v::Dict{Int64,Vector{Float64}}  # Fixed joint velocities
+    fixed_τ::Dict{Int64,Vector{Float64}}  # Fixed joint torques
 
     ee_pos::Dict{Int64,Point{3,Float64}}  # End-effector target positions
 
@@ -54,9 +54,9 @@ mutable struct Problem
 
         new(
             num_knots, dt,
-            Dict{Int64,Array{Float64}}(),
-            Dict{Int64,Array{Float64}}(),
-            Dict{Int64,Array{Float64}}(),
+            Dict{Int64,Vector{Float64}}(),
+            Dict{Int64,Vector{Float64}}(),
+            Dict{Int64,Vector{Float64}}(),
             Dict{Int64,Point{3,Float64}}(),
             jacdata_fwd_dyn,
             jacdata_inv_dyn,

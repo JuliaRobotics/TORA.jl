@@ -34,7 +34,7 @@ Solve the nonlinear optimization problem with Knitro.
 Further options can be set using the keyword arguments. See [Solver Interfaces](@ref).
 
 # Keyword arguments
-- `initial_guess::Array{Float64}=Float64[]`: the starting point for the solver.
+- `initial_guess::Vector{Float64}=Float64[]`: the starting point for the solver.
 - `use_inv_dyn::Bool=false`: if true, enables the use of inverse dynamics instead of forward dynamics.
 - `minimise_τ::Bool=false`: if true, activates a cost function to minimize the joint torques.
 - `user_options::Dict=Dict()`: the user options for Knitro.

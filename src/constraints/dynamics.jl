@@ -24,7 +24,7 @@ end
     return dx
 end
 
-function forward_dynamics_defects!(defects, robot::Robot{Float64,<:Any,n_q,n_v,n_τ}, x::AbstractArray{T}, h) where {T,n_q,n_v,n_τ}
+function forward_dynamics_defects!(defects, robot::Robot{Float64,<:Any,n_q,n_v,n_τ}, x::AbstractVector{T}, h) where {T,n_q,n_v,n_τ}
     result = robot.dynamicsresultcache[T]
     state = robot.statecache[T]
 
@@ -62,7 +62,7 @@ function forward_dynamics_defects!(defects, robot::Robot{Float64,<:Any,n_q,n_v,n
     @. defects = xᵢ₊₁_integrated - xᵢ₊₁_discretised
 end
 
-function inverse_dynamics_defects!(defects, robot, x::AbstractArray{T}, h) where {T}
+function inverse_dynamics_defects!(defects, robot, x::AbstractVector{T}, h) where {T}
     # Indices of the decision variables
     ind_qᵢ   = (1:robot.n_q)
     ind_vᵢ   = (1:robot.n_v) .+ (robot.n_q)

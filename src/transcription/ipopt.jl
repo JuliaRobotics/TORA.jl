@@ -10,7 +10,7 @@ Solve the nonlinear optimization problem with Ipopt.
 Further options can be set using the keyword arguments. See [Solver Interfaces](@ref).
 
 # Keyword arguments
-- `initial_guess::Array{Float64}=Float64[]`: the starting point for the solver.
+- `initial_guess::Vector{Float64}=Float64[]`: the starting point for the solver.
 - `use_inv_dyn::Bool=false`: if true, enables the use of inverse dynamics instead of forward dynamics.
 - `minimise_τ::Bool=false`: if true, activates a cost function to minimize the joint torques.
 - `user_options::Dict=Dict()`: the user options for Ipopt.
@@ -18,7 +18,7 @@ Further options can be set using the keyword arguments. See [Solver Interfaces](
 See also: [`solve_with_knitro`](@ref)
 """
 function solve_with_ipopt(problem::Problem, robot::Robot;
-                          initial_guess::Array{Float64}=Float64[],
+                          initial_guess::Vector{Float64}=Float64[],
                           use_inv_dyn::Bool=false,
                           minimise_τ::Bool=false,
                           user_options::Dict=Dict())

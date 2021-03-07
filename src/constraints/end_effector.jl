@@ -1,4 +1,4 @@
-function ee_position!(position, robot, q::AbstractArray{T}) where {T}
+function ee_position!(position, robot, q::AbstractVector{T}) where {T}
     state = robot.statecache[T]
     set_configuration!(state, q)
 
@@ -58,7 +58,7 @@ function get_ee_path(problem::Problem, robot::Robot, x)
     return positions
 end
 
-function show_ee_path(vis::Visualizer, ee_positions::Array{Float64})
+function show_ee_path(vis::Visualizer, ee_positions::Matrix{Float64})
     points = collect(eachcol(ee_positions))
     material = LineBasicMaterial(color=colorant"yellow", linewidth=2.0)
     setobject!(vis["ee path"], Object(PointCloud(points), material, "Line"))
