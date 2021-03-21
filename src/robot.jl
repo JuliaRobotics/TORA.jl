@@ -12,6 +12,7 @@ struct Robot{T,T_SC,n_q,n_v,n_τ}
     state::MechanismState{T}
     statecache::T_SC
     dynamicsresultcache::DynamicsResultCache{T}
+    segmentedvectorcache::SegmentedVectorCache{JointID, Base.OneTo{JointID}}
     mvis::MechanismVisualizer
 
     q_lo::Vector{T}
@@ -39,6 +40,7 @@ struct Robot{T,T_SC,n_q,n_v,n_τ}
         state = MechanismState(mechanism)
         statecache = StateCache(mechanism)
         dynamicsresultcache = DynamicsResultCache(mechanism)
+        segmentedvectorcache = SegmentedVectorCache(RigidBodyDynamics.ranges(velocity(state)))
 
         q_lo = [lim for joint in joints(mechanism) for lim in map(x -> x.lower, position_bounds(joint))]
         q_hi = [lim for joint in joints(mechanism) for lim in map(x -> x.upper, position_bounds(joint))]
@@ -59,6 +61,7 @@ struct Robot{T,T_SC,n_q,n_v,n_τ}
             state,
             statecache,
             dynamicsresultcache,
+            segmentedvectorcache,
             mvis,
             q_lo,
             q_hi,

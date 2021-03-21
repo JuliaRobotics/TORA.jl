@@ -62,7 +62,11 @@ function forward_dynamics_defects!(defects, robot::Robot{Float64,<:Any,n_q,n_v,n
     @. defects = xᵢ₊₁_integrated - xᵢ₊₁_discretised
 end
 
-function inverse_dynamics_defects!(defects, robot, x::AbstractVector{T}, h) where {T}
+function inverse_dynamics_defects!(defects, robot::Robot{Float64,<:Any,n_q,n_v,n_τ}, x::AbstractVector{T}, h) where {T,n_q,n_v,n_τ}
+    dynamics_result = robot.dynamicsresultcache[T]
+    segmented_vector = robot.segmentedvectorcache[T]
+    state = robot.statecache[T]
+
     # Indices of the decision variables
     ind_qᵢ   = (1:robot.n_q)
     ind_vᵢ   = (1:robot.n_v) .+ (robot.n_q)
@@ -71,21 +75,22 @@ function inverse_dynamics_defects!(defects, robot, x::AbstractVector{T}, h) wher
     ind_vᵢ₊₁ = (1:robot.n_v) .+ (robot.n_q + robot.n_v + robot.n_τ + robot.n_q)
 
     # Retrieve values of the decision variables
-    qᵢ  , vᵢ  , τᵢ = x[ind_qᵢ  ], x[ind_vᵢ  ], x[ind_τᵢ]
-    qᵢ₊₁, vᵢ₊₁     = x[ind_qᵢ₊₁], x[ind_vᵢ₊₁]
+    qᵢ   = SVector{n_q}(@view x[ind_qᵢ  ])
+    vᵢ   = SVector{n_v}(@view x[ind_vᵢ  ])
+    τᵢ   = SVector{n_τ}(@view x[ind_τᵢ  ])
+    qᵢ₊₁ = SVector{n_q}(@view x[ind_qᵢ₊₁])
+    vᵢ₊₁ = SVector{n_v}(@view x[ind_vᵢ₊₁])
 
     # Update robot state
-    state = robot.statecache[T]
     set_configuration!(state, qᵢ)
     set_velocity!(state, vᵢ)
 
     # Implicit joint accelerations
-    v̇ᵢ = similar(velocity(state))
+    v̇ᵢ = segmented_vector
     copyto!(v̇ᵢ, (vᵢ₊₁ - vᵢ) / h)
 
     # Compute inverse dynamics
-    torques = similar(velocity(state))  # create a SegmentedVector instance
-    dynamics_result = robot.dynamicsresultcache[T]
+    torques = segmented_vector
     wrenches = dynamics_result.jointwrenches
     accelerations = dynamics_result.accelerations
     inverse_dynamics!(torques, wrenches, accelerations, state, v̇ᵢ)
