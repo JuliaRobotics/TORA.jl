@@ -117,7 +117,28 @@ function create_robot_kinova_gen3_lite(vis::Visualizer)
     Robot(urdfpath, mechanism, frame_ee, mvis)
 end
 
+"""
+    create_robot_kinova_j2s6s200(vis)
+
+Create a new [Kinova Gen2](https://www.kinovarobotics.com/en/products/gen2-robot) robot.
+"""
+function create_robot_kinova_j2s6s200(vis::Visualizer)
+    package_path = joinpath(@__DIR__, "..", "kinova-ros")
+    urdfpath = joinpath(@__DIR__, "..", "robots", "j2s6s200.urdf")
+
+    mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
+    frame_ee = default_frame(findbody(mechanism, "j2s6s200_end_effector"))
+    remove_fixed_tree_joints!(mechanism)
+
+    urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+    mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+    setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+
+    Robot(urdfpath, mechanism, frame_ee, mvis)
+end
+
 export
     Robot,
     create_robot_kuka_iiwa_14,
-    create_robot_kinova_gen3_lite
+    create_robot_kinova_gen3_lite,
+    create_robot_kinova_j2s6s200
