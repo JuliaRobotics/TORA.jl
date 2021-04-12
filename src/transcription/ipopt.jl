@@ -32,8 +32,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
 
     n = n1 + n2 + n3  # total number of decision variables
 
-    x_L = Array{Float64,2}(undef, robot.n_q, 0)
-    x_U = Array{Float64,2}(undef, robot.n_q, 0)
+    x_L = Matrix{Float64}(undef, robot.n_q, 0)
+    x_U = Matrix{Float64}(undef, robot.n_q, 0)
 
     for k = 1:problem.num_knots
         if k ∈ keys(problem.fixed_q)
