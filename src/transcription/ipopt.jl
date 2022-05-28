@@ -1,3 +1,7 @@
+addOption(prob, k, v::String) = Ipopt.AddIpoptStrOption(prob, k, v)
+addOption(prob, k, v::Int) = Ipopt.AddIpoptIntOption(prob, k, v)
+addOption(prob, k, v::Float64) = Ipopt.AddIpoptNumOption(prob, k, v)
+
 """
     solve_with_ipopt(problem, robot;
                      initial_guess=Float64[],
@@ -167,8 +171,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     end
 
 
-    function eval_jac_g(x, mode, rows, cols, values)
-        if mode == :Structure
+    function eval_jac_g(x, rows, cols, values::Union{Nothing,Vector{Float64}})
+        if isnothing(values)
             for (i, r, c) in zip(1:length(jacIndexConsCB), jacIndexConsCB, jacIndexVarsCB)
                 rows[i] = r
                 cols[i] = c
@@ -244,8 +248,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     nele_jac += !use_m₁ ? 0 : jacdata_dyn.length_jac * (problem.num_knots - 1)
     nele_jac += !use_m₂ ? 0 : problem.jacdata_ee_position.length_jac * length(problem.ee_pos)
 
-    prob = Ipopt.createProblem(n, vec(x_L), vec(x_U), m, g_L, g_U, nele_jac, 0,
-                               eval_f, eval_g, eval_grad_f, eval_jac_g)
+    prob = Ipopt.CreateIpoptProblem(n, vec(x_L), vec(x_U), m, g_L, g_U, nele_jac, 0,
+                                    eval_f, eval_g, eval_grad_f, eval_jac_g, nothing)
 
     # # # # # # # # #
     # Initial guess #
@@ -275,8 +279,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
 
     solver_log = SolverLog(n)
 
-    function intermediate(alg_mod::Int, iter_count::Int, obj_value::Float64, inf_pr::Float64, inf_du::Float64, mu::Float64,
-                          d_norm::Float64, regularization_size::Float64, alpha_du::Float64, alpha_pr::Float64, ls_trials::Int)
+    function intermediate(alg_mod::Cint, iter_count::Cint, obj_value::Float64, inf_pr::Float64, inf_du::Float64, mu::Float64,
+                          d_norm::Float64, regularization_size::Float64, alpha_du::Float64, alpha_pr::Float64, ls_trials::Cint,)
         print("")  # Flush the output to the Jupyter notebook cell
 
         update!(solver_log, abs_feas_error=inf_pr, obj_value=obj_value)
@@ -284,8 +288,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         return true
     end
 
-    setIntermediateCallback(prob, intermediate)
-  
+    Ipopt.SetIntermediateCallback(prob, intermediate)
+
     # # Perform a derivative check.
     # addOption(prob, "derivative_test", "first-order")
 
@@ -293,7 +297,7 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     # Solve #
     # # # # #
 
-    cpu_time = @elapsed status = Ipopt.solveProblem(prob)
+    cpu_time = @elapsed status = Ipopt.IpoptSolve(prob)
 
     # println(Ipopt.ApplicationReturnStatus[status])
     # println(prob.x)
