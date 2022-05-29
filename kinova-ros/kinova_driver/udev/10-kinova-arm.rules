@@ -1,3 +1,0 @@
-# Kinova robotic arm
-
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="22cd", ATTR{manufacturer}=="Kinova inc.", MODE:="666"
