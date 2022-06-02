@@ -83,7 +83,8 @@ end
 Create a new [KUKA LBR iiwa 14](https://www.kuka.com/en-gb/products/robotics-systems/industrial-robots/lbr-iiwa) robot.
 """
 function create_robot_kuka_iiwa_14(vis::Visualizer)
-    package_path = joinpath(@__DIR__, "..", "iiwa_stack")
+    commit_hash = artifact_commit_hash("iiwa_stack")
+    package_path = joinpath(artifact"iiwa_stack", "iiwa_stack-$(commit_hash)")
     urdfpath = joinpath(@__DIR__, "..", "robots", "iiwa14.urdf")
 
     mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
@@ -103,7 +104,8 @@ end
 Create a new [Kinova Gen3 lite](https://www.kinovarobotics.com/en/products/gen3-lite-robot) robot.
 """
 function create_robot_kinova_gen3_lite(vis::Visualizer)
-    package_path = joinpath(@__DIR__, "..", "ros_kortex")
+    commit_hash = artifact_commit_hash("ros_kortex")
+    package_path = joinpath(artifact"ros_kortex", "ros_kortex-$(commit_hash)")
     urdfpath = joinpath(@__DIR__, "..", "robots", "gen3_lite_gen3_lite_2f.urdf")
 
     mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
@@ -123,7 +125,8 @@ end
 Create a new [Kinova Gen2](https://www.kinovarobotics.com/en/products/gen2-robot) robot.
 """
 function create_robot_kinova_j2s6s200(vis::Visualizer)
-    package_path = joinpath(@__DIR__, "..", "kinova-ros")
+    commit_hash = artifact_commit_hash("kinova-ros")
+    package_path = joinpath(artifact"kinova-ros", "kinova-ros-$(commit_hash)")
     urdfpath = joinpath(@__DIR__, "..", "robots", "j2s6s200.urdf")
 
     mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)

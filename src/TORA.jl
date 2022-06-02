@@ -46,6 +46,9 @@ end
 
 greet() = print("Hello World!")
 
+# Artifacts (robot meshes, URDF files, etc.)
+include("../dev/artifacts.jl")
+
 # `Struct`-defining files
 include("./jacobian_data.jl")
 include("./robot.jl")
