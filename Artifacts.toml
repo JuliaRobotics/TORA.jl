@@ -1,3 +1,11 @@
+[Universal_Robots_ROS2_Description]
+git-tree-sha1 = "e1ee825eafc93b4d720adcd270525d20d3497d7f"
+lazy = true
+
+    [[Universal_Robots_ROS2_Description.download]]
+    sha256 = "3deadd647e1731c422bc6d94cf3ca65fca9c0011c261e5349325063004a3863b"
+    url = "https://github.com/UniversalRobots/Universal_Robots_ROS2_Description/archive/a58490268d86ad109f83ad96d85b89334546312e.tar.gz"
+
 [iiwa_stack]
 git-tree-sha1 = "3ab656596cd7375f65a49b169c006715a6b29dd2"
 lazy = true

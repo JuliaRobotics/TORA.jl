@@ -13,6 +13,10 @@ const ARTIFACTS = Dict(
         base_url="https://github.com/Kinovarobotics/ros_kortex",
         commit_hash="7ba75b3e6293fe4af9fe64f35e877d1ff2613360",
     ),
+    "Universal_Robots_ROS2_Description" => (
+        base_url="https://github.com/UniversalRobots/Universal_Robots_ROS2_Description",
+        commit_hash="a58490268d86ad109f83ad96d85b89334546312e",
+    ),
 )
 
 artifact_commit_hash(name::String) = ARTIFACTS[name].commit_hash

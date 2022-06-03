@@ -12,7 +12,7 @@ struct Robot{T,T_SC,n_q,n_v,n_τ}
     state::MechanismState{T}
     statecache::T_SC
     dynamicsresultcache::DynamicsResultCache{T}
-    segmentedvectorcache::SegmentedVectorCache{JointID, Base.OneTo{JointID}}
+    segmentedvectorcache::SegmentedVectorCache{JointID,Base.OneTo{JointID}}
     mvis::MechanismVisualizer
 
     q_lo::Vector{T}
@@ -140,8 +140,38 @@ function create_robot_kinova_j2s6s200(vis::Visualizer)
     Robot(urdfpath, mechanism, frame_ee, mvis)
 end
 
+"""
+    create_robot_ur10e(vis)
+
+Create a new  robot.
+"""
+function create_robot_ur(vis::Visualizer, ur_type::String)
+    choices = ["ur3", "ur3e", "ur5", "ur5e", "ur10", "ur10e", "ur16e"]
+    if ur_type ∉ choices
+        msg = """
+        Argument `ur_type` provided value \"$(ur_type)\" is not valid.
+        Valid options are: $(choices)"""
+        error(msg)
+    else
+        commit_hash = artifact_commit_hash("Universal_Robots_ROS2_Description")
+        package_path = joinpath(artifact"Universal_Robots_ROS2_Description", "Universal_Robots_ROS2_Description-$(commit_hash)")
+        urdfpath = joinpath(@__DIR__, "..", "robots", "$(ur_type).urdf")
+
+        mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
+        frame_ee = default_frame(findbody(mechanism, "tool0"))
+        remove_fixed_tree_joints!(mechanism)
+
+        urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+        mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+        setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+
+        Robot(urdfpath, mechanism, frame_ee, mvis)
+    end
+end
+
 export
     Robot,
     create_robot_kuka_iiwa_14,
     create_robot_kinova_gen3_lite,
-    create_robot_kinova_j2s6s200
+    create_robot_kinova_j2s6s200,
+    create_robot_ur
