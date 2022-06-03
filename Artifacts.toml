@@ -1,0 +1,23 @@
+[iiwa_stack]
+git-tree-sha1 = "3ab656596cd7375f65a49b169c006715a6b29dd2"
+lazy = true
+
+    [[iiwa_stack.download]]
+    sha256 = "b951157ecb49e1e3cfcf1d0960fa981650b8996f07ab19acde17e913a9c69a5a"
+    url = "https://github.com/IFL-CAMP/iiwa_stack/archive/a4f132ad093d276e63040ddbbac6b2cd1facbdcc.tar.gz"
+
+[kinova-ros]
+git-tree-sha1 = "4610abcd3ab8c76d8b743d38498b177d1712f040"
+lazy = true
+
+    [[kinova-ros.download]]
+    sha256 = "c0ec422140589930750370c3e1631a407f15680be8c786b0051978dfa7df9b2e"
+    url = "https://github.com/Kinovarobotics/kinova-ros/archive/93f66822ec073827eac5de59ebc2a3c5f06bf17f.tar.gz"
+
+[ros_kortex]
+git-tree-sha1 = "ae7d8eefc6d1656498490530a1e0a025283714a5"
+lazy = true
+
+    [[ros_kortex.download]]
+    sha256 = "6bfb78e81e26a0ed9b3b8084b1b6cc2e5928ad506acef9470aabf7141fb4efcb"
+    url = "https://github.com/Kinovarobotics/ros_kortex/archive/7ba75b3e6293fe4af9fe64f35e877d1ff2613360.tar.gz"

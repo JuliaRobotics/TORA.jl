@@ -6,20 +6,21 @@ A `Robot` represents a mechanism, its state, and other relevant objects.
 - The number of generalized coordinates, generalized velocities, and actuated joints are stored in `n_q`, `n_v`, `n_τ`, respectively.
 - The end-effector frame is stored in `frame_ee`.
 """
-struct Robot
+struct Robot{T,T_SC,n_q,n_v,n_τ}
     urdfpath::String
-    mechanism::Mechanism
-    state::MechanismState
-    statecache::StateCache
-    dynamicsresultcache::DynamicsResultCache
+    mechanism::Mechanism{T}
+    state::MechanismState{T}
+    statecache::T_SC
+    dynamicsresultcache::DynamicsResultCache{T}
+    segmentedvectorcache::SegmentedVectorCache{JointID, Base.OneTo{JointID}}
     mvis::MechanismVisualizer
 
-    q_lo::Array{Float64}
-    q_hi::Array{Float64}
-    v_lo::Array{Float64}
-    v_hi::Array{Float64}
-    τ_lo::Array{Float64}
-    τ_hi::Array{Float64}
+    q_lo::Vector{T}
+    q_hi::Vector{T}
+    v_lo::Vector{T}
+    v_hi::Vector{T}
+    τ_lo::Vector{T}
+    τ_hi::Vector{T}
 
     n_q::Int64  # Number of generalized coordinates
     n_v::Int64  # Number of generalized velocities
@@ -39,6 +40,7 @@ struct Robot
         state = MechanismState(mechanism)
         statecache = StateCache(mechanism)
         dynamicsresultcache = DynamicsResultCache(mechanism)
+        segmentedvectorcache = SegmentedVectorCache(RigidBodyDynamics.ranges(velocity(state)))
 
         q_lo = [lim for joint in joints(mechanism) for lim in map(x -> x.lower, position_bounds(joint))]
         q_hi = [lim for joint in joints(mechanism) for lim in map(x -> x.upper, position_bounds(joint))]
@@ -47,12 +49,19 @@ struct Robot
         τ_lo = [lim for joint in joints(mechanism) for lim in map(x -> x.lower,   effort_bounds(joint))]
         τ_hi = [lim for joint in joints(mechanism) for lim in map(x -> x.upper,   effort_bounds(joint))]
 
-        new(
+        n_q = num_positions(mechanism)
+        n_v = num_velocities(mechanism)
+        n_τ = num_velocities(mechanism)
+
+        T_SC = typeof(statecache)
+
+        new{Float64,T_SC,n_q,n_v,n_τ}(
             urdfpath,
             mechanism,
             state,
             statecache,
             dynamicsresultcache,
+            segmentedvectorcache,
             mvis,
             q_lo,
             q_hi,
@@ -60,9 +69,9 @@ struct Robot
             v_hi,
             τ_lo,
             τ_hi,
-            num_positions(mechanism),
-            num_velocities(mechanism),
-            num_velocities(mechanism),
+            n_q,
+            n_v,
+            n_τ,
             frame_ee
         )
     end
@@ -74,7 +83,8 @@ end
 Create a new [KUKA LBR iiwa 14](https://www.kuka.com/en-gb/products/robotics-systems/industrial-robots/lbr-iiwa) robot.
 """
 function create_robot_kuka_iiwa_14(vis::Visualizer)
-    package_path = joinpath(@__DIR__, "..", "iiwa_stack")
+    commit_hash = artifact_commit_hash("iiwa_stack")
+    package_path = joinpath(artifact"iiwa_stack", "iiwa_stack-$(commit_hash)")
     urdfpath = joinpath(@__DIR__, "..", "robots", "iiwa14.urdf")
 
     mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
@@ -94,7 +104,8 @@ end
 Create a new [Kinova Gen3 lite](https://www.kinovarobotics.com/en/products/gen3-lite-robot) robot.
 """
 function create_robot_kinova_gen3_lite(vis::Visualizer)
-    package_path = joinpath(@__DIR__, "..", "ros_kortex")
+    commit_hash = artifact_commit_hash("ros_kortex")
+    package_path = joinpath(artifact"ros_kortex", "ros_kortex-$(commit_hash)")
     urdfpath = joinpath(@__DIR__, "..", "robots", "gen3_lite_gen3_lite_2f.urdf")
 
     mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
@@ -108,7 +119,29 @@ function create_robot_kinova_gen3_lite(vis::Visualizer)
     Robot(urdfpath, mechanism, frame_ee, mvis)
 end
 
+"""
+    create_robot_kinova_j2s6s200(vis)
+
+Create a new [Kinova Gen2](https://www.kinovarobotics.com/en/products/gen2-robot) robot.
+"""
+function create_robot_kinova_j2s6s200(vis::Visualizer)
+    commit_hash = artifact_commit_hash("kinova-ros")
+    package_path = joinpath(artifact"kinova-ros", "kinova-ros-$(commit_hash)")
+    urdfpath = joinpath(@__DIR__, "..", "robots", "j2s6s200.urdf")
+
+    mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
+    frame_ee = default_frame(findbody(mechanism, "j2s6s200_end_effector"))
+    remove_fixed_tree_joints!(mechanism)
+
+    urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+    mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+    setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+
+    Robot(urdfpath, mechanism, frame_ee, mvis)
+end
+
 export
     Robot,
     create_robot_kuka_iiwa_14,
-    create_robot_kinova_gen3_lite
+    create_robot_kinova_gen3_lite,
+    create_robot_kinova_j2s6s200

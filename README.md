@@ -22,8 +22,8 @@ julia> import Pkg; Pkg.add("https://github.com/JuliaRobotics/TORA.jl")
 
 ## Documentation
 
-- [**STABLE**][docs-stable-url] &mdash; **documentation of the most recently tagged version.**
-- [**DEVEL**][docs-dev-url] &mdash; *documentation of the in-development version.*
+- [**Stable**][docs-stable-url] &mdash; **documentation of the most recently tagged version.**
+- [**Devel**][docs-dev-url] &mdash; *documentation of the in-development version.*
 
 ## Contributions and Questions
 

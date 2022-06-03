@@ -1,3 +1,7 @@
+addOption(prob, k, v::String) = Ipopt.AddIpoptStrOption(prob, k, v)
+addOption(prob, k, v::Int) = Ipopt.AddIpoptIntOption(prob, k, v)
+addOption(prob, k, v::Float64) = Ipopt.AddIpoptNumOption(prob, k, v)
+
 """
     solve_with_ipopt(problem, robot;
                      initial_guess=Float64[],
@@ -10,7 +14,7 @@ Solve the nonlinear optimization problem with Ipopt.
 Further options can be set using the keyword arguments. See [Solver Interfaces](@ref).
 
 # Keyword arguments
-- `initial_guess::Array{Float64}=Float64[]`: the starting point for the solver.
+- `initial_guess::Vector{Float64}=Float64[]`: the starting point for the solver.
 - `use_inv_dyn::Bool=false`: if true, enables the use of inverse dynamics instead of forward dynamics.
 - `minimise_τ::Bool=false`: if true, activates a cost function to minimize the joint torques.
 - `user_options::Dict=Dict()`: the user options for Ipopt.
@@ -18,7 +22,7 @@ Further options can be set using the keyword arguments. See [Solver Interfaces](
 See also: [`solve_with_knitro`](@ref)
 """
 function solve_with_ipopt(problem::Problem, robot::Robot;
-                          initial_guess::Array{Float64}=Float64[],
+                          initial_guess::Vector{Float64}=Float64[],
                           use_inv_dyn::Bool=false,
                           minimise_τ::Bool=false,
                           user_options::Dict=Dict())
@@ -32,8 +36,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
 
     n = n1 + n2 + n3  # total number of decision variables
 
-    x_L = Array{Float64,2}(undef, robot.n_q, 0)
-    x_U = Array{Float64,2}(undef, robot.n_q, 0)
+    x_L = Matrix{Float64}(undef, robot.n_q, 0)
+    x_U = Matrix{Float64}(undef, robot.n_q, 0)
 
     for k = 1:problem.num_knots
         if k ∈ keys(problem.fixed_q)
@@ -167,8 +171,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     end
 
 
-    function eval_jac_g(x, mode, rows, cols, values)
-        if mode == :Structure
+    function eval_jac_g(x, rows, cols, values::Union{Nothing,Vector{Float64}})
+        if isnothing(values)
             for (i, r, c) in zip(1:length(jacIndexConsCB), jacIndexConsCB, jacIndexVarsCB)
                 rows[i] = r
                 cols[i] = c
@@ -244,8 +248,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     nele_jac += !use_m₁ ? 0 : jacdata_dyn.length_jac * (problem.num_knots - 1)
     nele_jac += !use_m₂ ? 0 : problem.jacdata_ee_position.length_jac * length(problem.ee_pos)
 
-    prob = Ipopt.createProblem(n, vec(x_L), vec(x_U), m, g_L, g_U, nele_jac, 0,
-                               eval_f, eval_g, eval_grad_f, eval_jac_g)
+    prob = Ipopt.CreateIpoptProblem(n, vec(x_L), vec(x_U), m, g_L, g_U, nele_jac, 0,
+                                    eval_f, eval_g, eval_grad_f, eval_jac_g, nothing)
 
     # # # # # # # # #
     # Initial guess #
@@ -275,8 +279,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
 
     solver_log = SolverLog(n)
 
-    function intermediate(alg_mod::Int, iter_count::Int, obj_value::Float64, inf_pr::Float64, inf_du::Float64, mu::Float64,
-                          d_norm::Float64, regularization_size::Float64, alpha_du::Float64, alpha_pr::Float64, ls_trials::Int)
+    function intermediate(alg_mod::Cint, iter_count::Cint, obj_value::Float64, inf_pr::Float64, inf_du::Float64, mu::Float64,
+                          d_norm::Float64, regularization_size::Float64, alpha_du::Float64, alpha_pr::Float64, ls_trials::Cint,)
         print("")  # Flush the output to the Jupyter notebook cell
 
         update!(solver_log, abs_feas_error=inf_pr, obj_value=obj_value)
@@ -284,8 +288,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         return true
     end
 
-    setIntermediateCallback(prob, intermediate)
-  
+    Ipopt.SetIntermediateCallback(prob, intermediate)
+
     # # Perform a derivative check.
     # addOption(prob, "derivative_test", "first-order")
 
@@ -293,7 +297,7 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     # Solve #
     # # # # #
 
-    cpu_time = @elapsed status = Ipopt.solveProblem(prob)
+    cpu_time = @elapsed status = Ipopt.IpoptSolve(prob)
 
     # println(Ipopt.ApplicationReturnStatus[status])
     # println(prob.x)

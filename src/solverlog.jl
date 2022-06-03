@@ -2,12 +2,12 @@
 During optimization, a `SolverLog` is used to store convergence information.
 
 A `SolverLog` can log the following:
-- `x::Array{Float64,2}`: the history of the decision variables for every iteration.
-- `abs_feas_error::Array{Float64,1}`: the absolute feasibility error evolution.
-- `abs_opt_error::Array{Float64,1}`: the absolute optimality error evolution.
-- `obj_value::Array{Float64,1}`: the evolution of the objective function value.
-- `fc_evals::Array{Float64,1}`: the evolution of the number of function evaluations.
-- `ga_evals::Array{Float64,1}`: the evolution of the number of gradient evaluations.
+- `x::Matrix{Float64}`: the history of the decision variables for every iteration.
+- `abs_feas_error::Vector{Float64}`: the absolute feasibility error evolution.
+- `abs_opt_error::Vector{Float64}`: the absolute optimality error evolution.
+- `obj_value::Vector{Float64}`: the evolution of the objective function value.
+- `fc_evals::Vector{Float64}`: the evolution of the number of function evaluations.
+- `ga_evals::Vector{Float64}`: the evolution of the number of gradient evaluations.
 - `nStatus::Int`: the solution status return code.
 
 The actual values stored in a `SolverLog` depend on the implementation of the callback used by each solver for every new point.
@@ -15,12 +15,12 @@ Using Ipopt, the callback is set with [`Ipopt.setIntermediateCallback`](https://
 Using Knitro, the callback is set with [`KNITRO.KN_set_newpt_callback`](https://github.com/jump-dev/KNITRO.jl/blob/43de7d38f01d7aa7c418bb24d0c1ab89b61e527a/examples/nlp2.jl#L201-L204).
 """
 mutable struct SolverLog
-    x::Array{Float64,2}
-    abs_feas_error::Array{Float64,1}
-    abs_opt_error::Array{Float64,1}
-    obj_value::Array{Float64,1}
-    fc_evals::Array{Float64,1}
-    ga_evals::Array{Float64,1}
+    x::Matrix{Float64}
+    abs_feas_error::Vector{Float64}
+    abs_opt_error::Vector{Float64}
+    obj_value::Vector{Float64}
+    fc_evals::Vector{Float64}
+    ga_evals::Vector{Float64}
     nStatus::Int  # solution status return code
 
     @doc """
@@ -34,12 +34,12 @@ mutable struct SolverLog
     See also: [`update!`](@ref)
     """
     function SolverLog(N::Int)
-        new(Array{Float64,2}(undef, N, 0),
-            Array{Float64,1}(undef, 0),
-            Array{Float64,1}(undef, 0),
-            Array{Float64,1}(undef, 0),
-            Array{Float64,1}(undef, 0),
-            Array{Float64,1}(undef, 0),
+        new(Matrix{Float64}(undef, N, 0),
+            Vector{Float64}(undef, 0),
+            Vector{Float64}(undef, 0),
+            Vector{Float64}(undef, 0),
+            Vector{Float64}(undef, 0),
+            Vector{Float64}(undef, 0),
             -999)
     end
 end

@@ -1,8 +1,5 @@
 module TORA
 
-# Workaround for: https://github.com/JuliaRobotics/RigidBodyDynamics.jl/issues/500
-using LinearAlgebra; BLAS.set_num_threads(1)
-
 using Colors
 using ForwardDiff
 using GeometryBasics
@@ -15,6 +12,7 @@ using Requires
 using RigidBodyDynamics
 using SparseArrays
 using SparseDiffTools
+using StaticArrays
 
 using Plots.PlotMeasures: px
 using Random: rand!
@@ -33,7 +31,7 @@ Solve the nonlinear optimization problem with Knitro.
 Further options can be set using the keyword arguments. See [Solver Interfaces](@ref).
 
 # Keyword arguments
-- `initial_guess::Array{Float64}=Float64[]`: the starting point for the solver.
+- `initial_guess::Vector{Float64}=Float64[]`: the starting point for the solver.
 - `use_inv_dyn::Bool=false`: if true, enables the use of inverse dynamics instead of forward dynamics.
 - `minimise_τ::Bool=false`: if true, activates a cost function to minimize the joint torques.
 - `user_options::Dict=Dict()`: the user options for Knitro.
@@ -47,6 +45,9 @@ function __init__()
 end
 
 greet() = print("Hello World!")
+
+# Artifacts (robot meshes, URDF files, etc.)
+include("../dev/artifacts.jl")
 
 # `Struct`-defining files
 include("./jacobian_data.jl")
