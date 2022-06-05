@@ -514,7 +514,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="finger_joint" type="revolute">
+  <joint name="finger_joint" type="fixed">
     <origin rpy="0 0 3.141592653589793" xyz="0 -0.0306011 0.054904"/>
     <parent link="robotiq_arg2f_base_link"/>
     <child link="left_outer_knuckle"/>
@@ -527,7 +527,7 @@
     <child link="left_outer_finger"/>
     <axis xyz="1 0 0"/>
   </joint>
-  <joint name="left_inner_knuckle_joint" type="revolute">
+  <joint name="left_inner_knuckle_joint" type="fixed">
     <!-- <origin xyz="0 ${reflect * -0.0127} 0.06142" rpy="${pi / 2 + .725} 0 ${(reflect - 1) * pi / 2}" /> -->
     <origin rpy="0 0 3.141592653589793" xyz="0 -0.0127 0.06142"/>
     <parent link="robotiq_arg2f_base_link"/>
@@ -536,7 +536,7 @@
     <limit effort="1000" lower="0" upper="0.8757" velocity="2.0"/>
     <mimic joint="finger_joint" multiplier="1" offset="0"/>
   </joint>
-  <joint name="left_inner_finger_joint" type="revolute">
+  <joint name="left_inner_finger_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0.0061 0.0471"/>
     <parent link="left_outer_finger"/>
     <child link="left_inner_finger"/>
@@ -550,7 +550,7 @@
     <child link="left_inner_finger_pad"/>
     <axis xyz="0 0 1"/>
   </joint>
-  <joint name="right_outer_knuckle_joint" type="revolute">
+  <joint name="right_outer_knuckle_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0.0306011 0.054904"/>
     <parent link="robotiq_arg2f_base_link"/>
     <child link="right_outer_knuckle"/>
@@ -564,7 +564,7 @@
     <child link="right_outer_finger"/>
     <axis xyz="1 0 0"/>
   </joint>
-  <joint name="right_inner_knuckle_joint" type="revolute">
+  <joint name="right_inner_knuckle_joint" type="fixed">
     <!-- <origin xyz="0 ${reflect * -0.0127} 0.06142" rpy="${pi / 2 + .725} 0 ${(reflect - 1) * pi / 2}" /> -->
     <origin rpy="0 0 0.0" xyz="0 0.0127 0.06142"/>
     <parent link="robotiq_arg2f_base_link"/>
@@ -573,7 +573,7 @@
     <limit effort="1000" lower="0" upper="0.8757" velocity="2.0"/>
     <mimic joint="finger_joint" multiplier="1" offset="0"/>
   </joint>
-  <joint name="right_inner_finger_joint" type="revolute">
+  <joint name="right_inner_finger_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0.0061 0.0471"/>
     <parent link="right_outer_finger"/>
     <child link="right_inner_finger"/>
