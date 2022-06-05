@@ -107,24 +107,32 @@ function create_robot_kuka(model::String, vis::Visualizer)
 end
 
 """
-    create_robot_kinova_gen3_lite(vis)
+    create_robot_kinova_gen3(vis)
 
 Create a new [Kinova Gen3 lite](https://www.kinovarobotics.com/en/products/gen3-lite-robot) robot.
 """
-function create_robot_kinova_gen3_lite(vis::Visualizer)
-    commit_hash = artifact_commit_hash("ros_kortex")
-    package_path = joinpath(artifact"ros_kortex", "ros_kortex-$(commit_hash)")
-    urdfpath = joinpath(@__DIR__, "..", "robots", "gen3_lite_gen3_lite_2f.urdf")
+function create_robot_kinova_gen3(model::String, vis::Visualizer)
+    choices = ["gen3", "gen3_lite_gen3_lite_2f", "gen3_robotiq_2f_85", "gen3_robotiq_2f_140"]
+    if model ∉ choices
+        msg = """
+        Argument `model` provided value \"$(model)\" is not valid.
+        Valid options are: $(choices)"""
+        error(msg)
+    else
+        commit_hash = artifact_commit_hash("ros_kortex")
+        package_path = joinpath(artifact"ros_kortex", "ros_kortex-$(commit_hash)")
+        urdfpath = joinpath(@__DIR__, "..", "robots", "$(model).urdf")
 
-    mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
-    frame_ee = default_frame(findbody(mechanism, "tool_frame"))
-    remove_fixed_tree_joints!(mechanism)
+        mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
+        frame_ee = default_frame(findbody(mechanism, "tool_frame"))
+        remove_fixed_tree_joints!(mechanism)
 
-    urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
-    mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
-    # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+        urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+        mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+        # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
 
-    Robot(urdfpath, mechanism, frame_ee, mvis)
+        Robot(urdfpath, mechanism, frame_ee, mvis)
+    end
 end
 
 """
@@ -179,7 +187,7 @@ end
 
 export
     Robot,
-    create_robot_kuka_iiwa_14,
-    create_robot_kinova_gen3_lite,
+    create_robot_kuka,
+    create_robot_kinova_gen3,
     create_robot_kinova_j2s6s200,
     create_robot_ur
