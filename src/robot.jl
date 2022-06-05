@@ -78,24 +78,32 @@ struct Robot{T,T_SC,n_q,n_v,n_τ}
 end
 
 """
-    create_robot_kuka_iiwa_14(vis)
+    create_robot_kuka(model, vis)
 
-Create a new [KUKA LBR iiwa 14](https://www.kuka.com/en-gb/products/robotics-systems/industrial-robots/lbr-iiwa) robot.
+Create a new [KUKA LBR iiwa 7/14](https://www.kuka.com/en-gb/products/robotics-systems/industrial-robots/lbr-iiwa) robot.
 """
-function create_robot_kuka_iiwa_14(vis::Visualizer)
-    commit_hash = artifact_commit_hash("iiwa_stack")
-    package_path = joinpath(artifact"iiwa_stack", "iiwa_stack-$(commit_hash)")
-    urdfpath = joinpath(@__DIR__, "..", "robots", "iiwa14.urdf")
+function create_robot_kuka(model::String, vis::Visualizer)
+    choices = ["iiwa7", "iiwa14"]
+    if model ∉ choices
+        msg = """
+        Argument `model` provided value \"$(model)\" is not valid.
+        Valid options are: $(choices)"""
+        error(msg)
+    else
+        commit_hash = artifact_commit_hash("iiwa_stack")
+        package_path = joinpath(artifact"iiwa_stack", "iiwa_stack-$(commit_hash)")
+        urdfpath = joinpath(@__DIR__, "..", "robots", "$(model).urdf")
 
-    mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
-    frame_ee = default_frame(findbody(mechanism, "iiwa_link_pen_tip"))
-    remove_fixed_tree_joints!(mechanism)
+        mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
+        frame_ee = default_frame(findbody(mechanism, "iiwa_link_ee"))
+        remove_fixed_tree_joints!(mechanism)
 
-    urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
-    mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
-    # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+        urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+        mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+        # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
 
-    Robot(urdfpath, mechanism, frame_ee, mvis)
+        Robot(urdfpath, mechanism, frame_ee, mvis)
+    end
 end
 
 """
