@@ -4,7 +4,13 @@
 
 *Trajectory Optimization for Robot Arms*
 
-[![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] [![][codecov-img]][codecov-url] [![][coveralls-img]][coveralls-url] 
+[![Stable][docs-stable-img]][docs-stable-url] 
+[![Dev][docs-dev-img]][docs-dev-url] 
+[![Build Status][travis-img]][travis-url] 
+[![Build Status][appveyor-img]][appveyor-url] 
+[![Codecov][codecov-img]][codecov-url] 
+[![Coveralls][coveralls-img]][coveralls-url]
+[![Aqua QA][aqua-img]][aqua-url]
 
 ## Installation
 
@@ -50,3 +56,6 @@ Please open an [issue][issues-url] if you encounter any problems.
 [coveralls-url]: https://coveralls.io/github/ferrolho/TORA.jl?branch=main
 
 [issues-url]: https://github.com/JuliaRobotics/TORA.jl/issues
+
+[aqua-img]: https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg
+[aqua-url]: https://github.com/JuliaTesting/Aqua.jl
