@@ -78,6 +78,35 @@ struct Robot{T,T_SC,n_q,n_v,n_τ}
 end
 
 """
+    create_robot_franka(vis)
+
+Create a new [Franka Emika](https://www.franka.de/research) robot.
+"""
+function create_robot_franka(model::String, vis::Visualizer)
+    choices = ["panda_arm"]
+    if model ∉ choices
+        msg = """
+        Argument `model` provided value \"$(model)\" is not valid.
+        Valid options are: $(choices)"""
+        error(msg)
+    else
+        commit_hash = artifact_commit_hash("franka_ros")
+        package_path = joinpath(artifact"franka_ros", "franka_ros-$(commit_hash)")
+        urdfpath = joinpath(@__DIR__, "..", "robots", "$(model).urdf")
+
+        mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
+        frame_ee = default_frame(findbody(mechanism, "panda_hand_tcp"))
+        remove_fixed_tree_joints!(mechanism)
+
+        urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+        mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+        # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+
+        Robot(urdfpath, mechanism, frame_ee, mvis)
+    end
+end
+
+"""
     create_robot_kuka(model, vis)
 
 Create a new [KUKA LBR iiwa 7/14](https://www.kuka.com/en-gb/products/robotics-systems/industrial-robots/lbr-iiwa) robot.
@@ -151,7 +180,7 @@ function create_robot_kinova_j2s6s200(vis::Visualizer)
 
     urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
     mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
-    setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+    # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
 
     Robot(urdfpath, mechanism, frame_ee, mvis)
 end
@@ -161,7 +190,7 @@ end
 
 Create a new  robot.
 """
-function create_robot_ur(vis::Visualizer, ur_type::String)
+function create_robot_ur(ur_type::String, vis::Visualizer)
     choices = ["ur3", "ur3e", "ur5", "ur5e", "ur10", "ur10e", "ur16e"]
     if ur_type ∉ choices
         msg = """
@@ -179,7 +208,7 @@ function create_robot_ur(vis::Visualizer, ur_type::String)
 
         urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
         mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
-        setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+        # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
 
         Robot(urdfpath, mechanism, frame_ee, mvis)
     end
@@ -187,6 +216,7 @@ end
 
 export
     Robot,
+    create_robot_franka,
     create_robot_kuka,
     create_robot_kinova_gen3,
     create_robot_kinova_j2s6s200,

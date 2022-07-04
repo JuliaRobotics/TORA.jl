@@ -1,6 +1,10 @@
 using Pkg.Artifacts
 
 const ARTIFACTS = Dict(
+    "franka_ros" => (
+        base_url="https://github.com/frankaemika/franka_ros",
+        commit_hash="54ad920ed6a69e7552bfa993d0b063758f9254cb",
+    ),
     "iiwa_stack" => (
         base_url="https://github.com/IFL-CAMP/iiwa_stack",
         commit_hash="a4f132ad093d276e63040ddbbac6b2cd1facbdcc",

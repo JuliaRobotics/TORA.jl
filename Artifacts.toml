@@ -6,6 +6,14 @@ lazy = true
     sha256 = "3deadd647e1731c422bc6d94cf3ca65fca9c0011c261e5349325063004a3863b"
     url = "https://github.com/UniversalRobots/Universal_Robots_ROS2_Description/archive/a58490268d86ad109f83ad96d85b89334546312e.tar.gz"
 
+[franka_ros]
+git-tree-sha1 = "22f26fb2c0246b4891e6122bfd991c465459101d"
+lazy = true
+
+    [[franka_ros.download]]
+    sha256 = "8da77f3b3b2098554e030a63f5a03d4aa668c61c8c2e6c84af8d62e5a70edc5f"
+    url = "https://github.com/frankaemika/franka_ros/archive/54ad920ed6a69e7552bfa993d0b063758f9254cb.tar.gz"
+
 [iiwa_stack]
 git-tree-sha1 = "3ab656596cd7375f65a49b169c006715a6b29dd2"
 lazy = true
