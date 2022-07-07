@@ -78,7 +78,7 @@ struct Robot{T,T_SC,n_q,n_v,n_τ}
 end
 
 """
-    create_robot_franka(vis)
+    create_robot_franka(model, vis)
 
 Create a new [Franka Emika](https://www.franka.de/research) robot.
 """
@@ -96,6 +96,64 @@ function create_robot_franka(model::String, vis::Visualizer)
 
         mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
         frame_ee = default_frame(findbody(mechanism, "panda_hand_tcp"))
+        remove_fixed_tree_joints!(mechanism)
+
+        urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+        mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+        # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+
+        Robot(urdfpath, mechanism, frame_ee, mvis)
+    end
+end
+
+"""
+    create_robot_kinova_gen2(model, vis)
+
+Create a new [Kinova Gen2](https://www.kinovarobotics.com/en/products/gen2-robot) robot.
+"""
+function create_robot_kinova_gen2(model::String, vis::Visualizer)
+    choices = ["j2s6s200"]
+    if model ∉ choices
+        msg = """
+        Argument `model` provided value \"$(model)\" is not valid.
+        Valid options are: $(choices)"""
+        error(msg)
+    else
+        commit_hash = artifact_commit_hash("kinova-ros")
+        package_path = joinpath(artifact"kinova-ros", "kinova-ros-$(commit_hash)")
+        urdfpath = joinpath(@__DIR__, "..", "robots", "$(model).urdf")
+
+        mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
+        frame_ee = default_frame(findbody(mechanism, "$(model)_end_effector"))
+        remove_fixed_tree_joints!(mechanism)
+
+        urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+        mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+        # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+
+        Robot(urdfpath, mechanism, frame_ee, mvis)
+    end
+end
+
+"""
+    create_robot_kinova_gen3(model, vis)
+
+Create a new [Kinova Gen3 lite](https://www.kinovarobotics.com/en/products/gen3-lite-robot) robot.
+"""
+function create_robot_kinova_gen3(model::String, vis::Visualizer)
+    choices = ["gen3", "gen3_lite_gen3_lite_2f", "gen3_robotiq_2f_85", "gen3_robotiq_2f_140"]
+    if model ∉ choices
+        msg = """
+        Argument `model` provided value \"$(model)\" is not valid.
+        Valid options are: $(choices)"""
+        error(msg)
+    else
+        commit_hash = artifact_commit_hash("ros_kortex")
+        package_path = joinpath(artifact"ros_kortex", "ros_kortex-$(commit_hash)")
+        urdfpath = joinpath(@__DIR__, "..", "robots", "$(model).urdf")
+
+        mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
+        frame_ee = default_frame(findbody(mechanism, "tool_frame"))
         remove_fixed_tree_joints!(mechanism)
 
         urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
@@ -136,59 +194,9 @@ function create_robot_kuka(model::String, vis::Visualizer)
 end
 
 """
-    create_robot_kinova_gen3(vis)
+    create_robot_ur(ur_type, vis)
 
-Create a new [Kinova Gen3 lite](https://www.kinovarobotics.com/en/products/gen3-lite-robot) robot.
-"""
-function create_robot_kinova_gen3(model::String, vis::Visualizer)
-    choices = ["gen3", "gen3_lite_gen3_lite_2f", "gen3_robotiq_2f_85", "gen3_robotiq_2f_140"]
-    if model ∉ choices
-        msg = """
-        Argument `model` provided value \"$(model)\" is not valid.
-        Valid options are: $(choices)"""
-        error(msg)
-    else
-        commit_hash = artifact_commit_hash("ros_kortex")
-        package_path = joinpath(artifact"ros_kortex", "ros_kortex-$(commit_hash)")
-        urdfpath = joinpath(@__DIR__, "..", "robots", "$(model).urdf")
-
-        mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
-        frame_ee = default_frame(findbody(mechanism, "tool_frame"))
-        remove_fixed_tree_joints!(mechanism)
-
-        urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
-        mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
-        # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
-
-        Robot(urdfpath, mechanism, frame_ee, mvis)
-    end
-end
-
-"""
-    create_robot_kinova_j2s6s200(vis)
-
-Create a new [Kinova Gen2](https://www.kinovarobotics.com/en/products/gen2-robot) robot.
-"""
-function create_robot_kinova_j2s6s200(vis::Visualizer)
-    commit_hash = artifact_commit_hash("kinova-ros")
-    package_path = joinpath(artifact"kinova-ros", "kinova-ros-$(commit_hash)")
-    urdfpath = joinpath(@__DIR__, "..", "robots", "j2s6s200.urdf")
-
-    mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
-    frame_ee = default_frame(findbody(mechanism, "j2s6s200_end_effector"))
-    remove_fixed_tree_joints!(mechanism)
-
-    urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
-    mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
-    # setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
-
-    Robot(urdfpath, mechanism, frame_ee, mvis)
-end
-
-"""
-    create_robot_ur10e(vis)
-
-Create a new  robot.
+Create a new [Universal Robots](https://www.universal-robots.com/products/) robot.
 """
 function create_robot_ur(ur_type::String, vis::Visualizer)
     choices = ["ur3", "ur3e", "ur5", "ur5e", "ur10", "ur10e", "ur16e"]
@@ -217,7 +225,7 @@ end
 export
     Robot,
     create_robot_franka,
-    create_robot_kuka,
+    create_robot_kinova_gen2,
     create_robot_kinova_gen3,
-    create_robot_kinova_j2s6s200,
+    create_robot_kuka,
     create_robot_ur
