@@ -4,21 +4,27 @@ language: julia
 
 os:
   - linux
-  # - osx
+  - osx
 
 julia:
-  # - nightly
   - 1
+  - nightly
 
 codecov: true
 coveralls: true
 
+notifications:
+  email: false
+
 jobs:
+  # Uncomment the following lines to allow failures on nightly julia
+  # (tests will run but not make your overall status red)
   allow_failures:
     - julia: nightly
+  fast_finish: true
   include:
     - stage: "Documentation"
-      julia: 1.5
+      julia: 1.6
       os: linux
       env:
         - GKSwstype="100"  # See https://github.com/jheinen/GR.jl/issues/278
@@ -35,6 +41,3 @@ jobs:
         - julia --color=yes --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
         - julia --color=yes --project=docs/ docs/make.jl
       after_success: skip
-
-notifications:
-  email: false
