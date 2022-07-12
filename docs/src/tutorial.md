@@ -44,10 +44,10 @@ It should look like this:
 
 ## Loading a Robot
 
-After starting the viewer, we are now ready to load a robot. Let's load a [KUKA LBR iiwa 14](https://www.kuka.com/en-gb/products/robotics-systems/industrial-robots/lbr-iiwa) with
+After starting the viewer, we are now ready to load a robot. Let's load a [Franka Emika](https://www.franka.de/research) research robot with
 
 ```@example example_1
-robot = TORA.create_robot_kuka_iiwa_14(vis)
+robot = TORA.create_robot_franka("panda_arm", vis)
 nothing  # hide
 ```
 
@@ -83,15 +83,15 @@ To create a new problem, we use the [`TORA.Problem`](@ref) constructor, which ta
 
 ```@setup example_2
 ```
-Suppose we want to optimize a motion with a total duration of *2 seconds*, and that we want to calculate the control inputs to the system at a frequency of *150 Hz*.
+Suppose we want to optimize a motion with a total duration of *2 seconds*, and that we want to calculate the control inputs to the system at a frequency of *100 Hz*.
 ```@example example_2
 const duration = 2.0  # in seconds
-const hz = 150
+const hz = 100
 nothing  # hide
 ```
 In that case, the time step duration would be
 ```@example example_2
-dt = 1/150
+dt = 1/100
 ```
 and the total number of *knots* would be given by
 ```@example example_2
@@ -100,7 +100,7 @@ hz * duration + 1
 
 Therefore, we create the problem by running
 ```@example example_1
-problem = TORA.Problem(robot, 301, 1/150)
+problem = TORA.Problem(robot, 201, 1/100)
 nothing  # hide
 ```
 
@@ -192,7 +192,7 @@ For our circle-tracing task, we are going to define a very simple (but reasonabl
 First, let's define the static configuration:
 
 ```@example example_1
-initial_q = [0, 0, 0, -π/2, 0, 0, 0]
+initial_q = [0, 0, 0, -π/2, 0, π, 0]
 nothing  # hide
 ```
 
@@ -230,7 +230,7 @@ We can concatenate these matrices into a single one:
 initial_guess = [initial_qs; initial_vs; initial_τs]
 ```
 
-Notice that the dimensions are `21×301`, i.e., the dimension of each knot ($\mathbb{R}^{21}$) times the 301 knots.
+Notice that the dimensions are `21×201`, i.e., the dimension of each knot ($\mathbb{R}^{21}$) times the 201 knots.
 
 We can flatten this matrix into a vector with
 ```@example example_1
