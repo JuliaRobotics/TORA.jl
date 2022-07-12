@@ -1,3 +1,5 @@
+ENV["GKSwstype"] = "100"  # See https://github.com/jheinen/GR.jl/issues/278
+
 using Documenter, TORA
 
 makedocs(
