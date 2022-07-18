@@ -268,13 +268,6 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     # User Options  #
     # # # # # # # # #
 
-    addOption(prob, "hessian_approximation", "limited-memory")
-    addOption(prob, "mu_strategy", "adaptive")
-    # addOption(prob, "linear_solver", "ma57")
-    # addOption(prob, "ma57_pre_alloc", 2.0)
-    addOption(prob, "tol", 1.0e-3)
-    addOption(prob, "max_cpu_time", 10.0)
-
     foreach(x -> addOption(prob, x...), user_options)
 
     solver_log = SolverLog(n)
