@@ -1,19 +1,3 @@
-function explicit_euler_step(qᵢ, vᵢ, v̇ᵢ, h)
-    qᵢ₊₁ = qᵢ + h * vᵢ
-    vᵢ₊₁ = vᵢ + h * v̇ᵢ
-
-    [qᵢ₊₁
-     vᵢ₊₁]
-end
-
-function semi_implicit_euler_step(qᵢ, vᵢ, v̇ᵢ, h)
-    vᵢ₊₁ = vᵢ + h * v̇ᵢ
-    qᵢ₊₁ = qᵢ + h * vᵢ₊₁
-
-    [qᵢ₊₁
-     vᵢ₊₁]
-end
-
 @inline function semi_implicit_euler_step!(dx, qᵢ, vᵢ, v̇ᵢ, h, n_q, n_v)
     vᵢ₊₁ = vᵢ .+ h .* v̇ᵢ
     qᵢ₊₁ = qᵢ .+ h .* vᵢ₊₁
