@@ -130,6 +130,7 @@ function show_problem_info(problem::Problem)
     t = (problem.num_knots - 1) * problem.dt
 
     println("Motion duration ...................................... $(t) seconds")
+    println("Number of knots ...................................... $(problem.num_knots)")
     println("Number of knots with constrained joint positions ..... $(length(problem.fixed_q))")
     println("Number of knots with constrained joint velocities .... $(length(problem.fixed_v))")
     println("Number of knots with constrained joint torques ....... $(length(problem.fixed_τ))")
