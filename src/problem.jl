@@ -13,8 +13,8 @@ This happens in one of the `TORA.solve_with_*` functions, which does the heavy-l
 See also: [`solve_with_ipopt`](@ref), [`solve_with_knitro`](@ref)
 """
 mutable struct Problem
-    num_knots::Int  # Total number of knots
-    dt::Float64  # Time step between two knots
+    const num_knots::Int  # Total number of knots
+    const dt::Float64  # Time step between two knots
 
     fixed_q::Dict{Int64,Vector{Float64}}  # Fixed joint positions
     fixed_v::Dict{Int64,Vector{Float64}}  # Fixed joint velocities
@@ -23,9 +23,9 @@ mutable struct Problem
     ee_pos::Dict{Int64,Point{3,Float64}}  # End-effector target positions
 
     # Jacobian data (e.g., for sparse Jacobian of dynamics with AD)
-    jacdata_fwd_dyn::JacobianData
-    jacdata_inv_dyn::JacobianData
-    jacdata_ee_position::JacobianData
+    const jacdata_fwd_dyn::JacobianData
+    const jacdata_inv_dyn::JacobianData
+    const jacdata_ee_position::JacobianData
 
     @doc """
         Problem(robot, num_knots, dt)
