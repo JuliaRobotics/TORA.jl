@@ -274,7 +274,9 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
 
     function intermediate(alg_mod::Cint, iter_count::Cint, obj_value::Float64, inf_pr::Float64, inf_du::Float64, mu::Float64,
                           d_norm::Float64, regularization_size::Float64, alpha_du::Float64, alpha_pr::Float64, ls_trials::Cint,)
-        print("")  # Flush the output to the Jupyter notebook cell
+        # Flush the output to the Jupyter notebook cell. Without it,
+        # the output will only show up after the solver has terminated.
+        flush(stdout)
 
         update!(solver_log, abs_feas_error=inf_pr, obj_value=obj_value)
 
