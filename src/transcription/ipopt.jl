@@ -79,9 +79,6 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
 
     m = m₁ + m₂  # total number of constraints
 
-    ind_con_dyn    = (1:m₁)
-    ind_con_ee_pos = (1:m₂) .+ (m₁)
-
     g_L, g_U = Float64[], Float64[]
 
     if use_m₁
