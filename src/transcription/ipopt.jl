@@ -25,7 +25,7 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
                           initial_guess::Vector{Float64}=Float64[],
                           use_inv_dyn::Bool=false,
                           minimise_τ::Bool=false,
-                          user_options::Dict=Dict())
+                          user_options::Dict=Dict("hessian_approximation" => "limited-memory"))
     # # # # # # # # # # # # # # # #
     # Variables and their bounds  #
     # # # # # # # # # # # # # # # #
