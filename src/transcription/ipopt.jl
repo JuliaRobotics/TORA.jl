@@ -89,8 +89,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     if use_m₂
         knots_con_ee = sort(collect(keys(problem.ee_pos)))
         con_ee = hcat([[problem.ee_pos[k].data...] for k in knots_con_ee]...)
-        append!(g_L, vec(con_ee))
-        append!(g_U, vec(con_ee))
+        append!(g_L, vec(con_ee) .- 1e-3)
+        append!(g_U, vec(con_ee) .+ 1e-3)
     end
 
     @assert length(g_L) == length(g_U)
