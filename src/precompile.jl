@@ -8,4 +8,5 @@ PrecompileTools.@compile_workload begin
     cpu_time, x, solver_log = solve_with_ipopt(problem, robot)
     play_trajectory(vis, problem, robot, x)
     plot_results(problem, robot, x)
+    Plots.closeall()
 end
