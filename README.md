@@ -31,6 +31,12 @@ julia> import Pkg; Pkg.add("https://github.com/JuliaRobotics/TORA.jl")
 - [**Stable**][docs-stable-url] &mdash; **documentation of the most recently tagged version.**
 - [**Devel**][docs-dev-url] &mdash; *documentation of the in-development version.*
 
+## Videos
+
+_Using Julia to Optimise Trajectories for Robots with Legs_ | Henrique Ferrolho | JuliaCon 2023
+
+[![Watch the video](https://img.youtube.com/vi/5uF3VqgjiVE/maxresdefault.jpg)](https://youtu.be/5uF3VqgjiVE)
+
 ## Contributions and Questions
 
 Contributions are very welcome, as are feature requests and suggestions.
