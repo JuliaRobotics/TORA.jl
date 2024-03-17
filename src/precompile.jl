@@ -9,4 +9,5 @@ PrecompileTools.@compile_workload begin
     play_trajectory(vis, problem, robot, x)
     plot_results(problem, robot, x)
     Plots.closeall()
+    MeshCat.close_server!(vis.core)
 end
