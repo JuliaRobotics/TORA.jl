@@ -194,6 +194,26 @@ function create_robot_kuka(model::String, vis::Visualizer)
 end
 
 """
+    create_robot_mycobot_280(vis)
+
+Create a new [myCobot 280](https://www.elephantrobotics.com/en/mycobot-280arduino-en/) robot.
+"""
+function create_robot_mycobot_280(vis::Visualizer)
+    package_path = joinpath("/Users/henrique/git/mycobot_ros/")
+    urdfpath = joinpath("/Users/henrique/git/mycobot_ros/mycobot_description/urdf/mycobot/mycobot_with_gripper_up.urdf")
+
+    mechanism = parse_urdf(urdfpath, remove_fixed_tree_joints=false)
+    frame_ee = default_frame(findbody(mechanism, "joint6_flange"))
+    remove_fixed_tree_joints!(mechanism)
+
+    urdfvisuals = URDFVisuals(urdfpath, package_path=[package_path])
+    mvis = MechanismVisualizer(mechanism, urdfvisuals, vis["robot"])
+    setelement!(mvis, frame_ee)  # Visualize a triad at the end-effector
+
+    Robot(urdfpath, mechanism, frame_ee, mvis)
+end
+
+"""
     create_robot_ur(ur_type, vis)
 
 Create a new [Universal Robots](https://www.universal-robots.com/products/) robot.
@@ -228,4 +248,5 @@ export
     create_robot_kinova_gen2,
     create_robot_kinova_gen3,
     create_robot_kuka,
+    create_robot_mycobot_280,
     create_robot_ur
