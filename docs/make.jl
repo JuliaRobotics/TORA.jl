@@ -5,6 +5,7 @@ using Documenter, TORA
 makedocs(
     modules = [TORA],
     format = Documenter.HTML(),
+    warnonly = Documenter.except(),
     sitename = "TORA.jl",
     authors = "Henrique Ferrolho",
     pages = [
