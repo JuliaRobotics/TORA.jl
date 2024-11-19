@@ -1,35 +1,59 @@
-struct JacobianData{T1 <: SparseMatrixCSC,T2 <: ForwardColorJacCache}
-    f!::Function
-    jac::T1
-    jac_cache::T2
-    length_jac::Int
-    sparsity::SparseArrays.SparseMatrixCSC{Bool,Int64}
+import SparseArrays
+import SparseDiffTools
+# import Symbolics
 
-    function JacobianData(f!, output, input)
-        # TODO Proper way to do it (currently not working)
-        # Issue: https://github.com/SciML/SparsityDetection.jl/issues/41
-        # sparsity = jacobian_sparsity(f!, output, input)
+"""
+`JacobianData` is a utility strcture to hold Jacobian information associated with a given function.
+"""
+struct JacobianData{T,F<:Function,C<:SparseDiffTools.ForwardColorJacCache}
+    f!::F
+    jac::SparseArrays.SparseMatrixCSC{T,Int}
+    jac_cache::C
+    jac_length::Int
+    jac_sparsity::SparseArrays.SparseMatrixCSC{Bool,Int}
 
-        # Workaround
+    @doc """
+        JacobianData(f!, output, input)
+
+    Create a new `JacobianData`.
+
+    # Arguments
+    - `f!`: the method associated with this `JacobianData`
+    - `output`: input vector to be passed to `f!`
+    - `input`: output vector expected from `f!`
+    """
+    function JacobianData(f!::F, output::Vector{T}, input::Vector{T}) where {T,F<:Function}
+        # # Issue: https://github.com/SciML/SparsityDetection.jl/issues/41
+        # # Calculate the sparsity pattern of the Jacobian
+        # jac_sparsity = Symbolics.jacobian_sparsity(f!, output, input)
+
+        # [HACKY!] Calculate the sparsity pattern of the Jacobian
         num_samples = 50
         jac_samples = [ForwardDiff.jacobian(f!, rand!(output), rand!(input)) for _ in 1:num_samples]
-        sparsity = sparse(sum(jac_samples) .≠ 0)
+        jac_sparsity = SparseArrays.sparse(sum(jac_samples) .≠ 0)
 
-        jac = convert.(Float64, sparse(sparsity))
+        # Placeholder for the actual Jacobian
+        jac = T.(jac_sparsity)
 
-        jac_cache = ForwardColorJacCache(f!, input, dx=output,
-                                         colorvec=matrix_colors(jac),
-                                         sparsity=sparsity)
+        # Color the sparse matrix using graphical techniques (colorvec-assisted differentiation is significantly faster)
+        colorvec = SparseDiffTools.matrix_colors(jac)
 
-        length_jac = nnz(jac)
+        # Construct the color cache in advance, in order to not compute it each time the Jacobian needs to be evaluated
+        jac_cache = SparseDiffTools.ForwardColorJacCache(f!, input, dx=output, colorvec=colorvec, sparsity=jac_sparsity)
 
-        T1 = typeof(jac)
-        T2 = typeof(jac_cache)
+        # The length of the Jacobian, i.e., the number of non-zero elements
+        jac_length = SparseArrays.nnz(jac)
 
-        new{T1,T2}(f!, jac, jac_cache, length_jac, sparsity)
+        C = typeof(jac_cache)
+
+        new{T,F,C}(f!, jac, jac_cache, jac_length, jac_sparsity)
     end
 end
 
-function (jd::JacobianData)(x)
-    forwarddiff_color_jacobian!(jd.jac, jd.f!, x, jd.jac_cache)
-end
+"""
+Evaluate this `JacobianData`'s function `f!` for point `x` using forward-mode automatic differentiation.
+
+This method's syntax is "special". For more info on Function-like-objects, read the
+[docs](https://docs.julialang.org/en/v1/manual/methods/#Function-like-objects).
+"""
+(jd::JacobianData)(x) = SparseDiffTools.forwarddiff_color_jacobian!(jd.jac, jd.f!, x, jd.jac_cache)

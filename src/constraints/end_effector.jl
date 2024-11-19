@@ -34,7 +34,7 @@ function cb_eval_ga_con_ee(kc, cb, evalRequest, evalResult, userParams)
     for (i, k) = enumerate(sort(collect(keys(problem.ee_pos))))
         ind_qᵢ = range(1 + (k - 1) * nₓ, length=robot.n_q)  # indices of the decision variables
         problem.jacdata_ee_position(x[ind_qᵢ])              # jacobian evaluation at that point
-        ind_jac = (1:problem.jacdata_ee_position.length_jac) .+ ((i - 1) * problem.jacdata_ee_position.length_jac)
+        ind_jac = (1:problem.jacdata_ee_position.jac_length) .+ ((i - 1) * problem.jacdata_ee_position.jac_length)
         evalResult.jac[ind_jac] = nonzeros(problem.jacdata_ee_position.jac)  # pass jacobian to Knitro
     end
 

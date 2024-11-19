@@ -187,11 +187,11 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
                     jacdata_dyn(x[ind_vars])
 
                     # Pass the Jacobian to Knitro
-                    offset_jac = i * jacdata_dyn.length_jac
-                    ind_jac = (1:jacdata_dyn.length_jac) .+ offset_jac
+                    offset_jac = i * jacdata_dyn.jac_length
+                    ind_jac = (1:jacdata_dyn.jac_length) .+ offset_jac
                     values[ind_jac] = nonzeros(jacdata_dyn.jac)
                 end
-                offset_prev += (problem.num_knots - 1) * jacdata_dyn.length_jac
+                offset_prev += (problem.num_knots - 1) * jacdata_dyn.jac_length
             end
 
             if use_m₂
@@ -199,8 +199,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
                 for (i, k) = enumerate(sort(collect(keys(problem.ee_pos))))
                     ind_qᵢ = range(1 + (k - 1) * nₓ, length=robot.n_q)  # indices of the decision variables
                     problem.jacdata_ee_position(x[ind_qᵢ])              # jacobian evaluation at that point
-                    offset_jac = (i - 1) * problem.jacdata_ee_position.length_jac + offset_prev
-                    ind_jac = (1:problem.jacdata_ee_position.length_jac) .+ offset_jac
+                    offset_jac = (i - 1) * problem.jacdata_ee_position.jac_length + offset_prev
+                    ind_jac = (1:problem.jacdata_ee_position.jac_length) .+ offset_jac
                     values[ind_jac] = nonzeros(problem.jacdata_ee_position.jac)  # pass jacobian to Knitro
                 end
             end
@@ -242,8 +242,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
 
     # number of nonzeros in the Jacobian of the constraints
     nele_jac = 0
-    nele_jac += !use_m₁ ? 0 : jacdata_dyn.length_jac * (problem.num_knots - 1)
-    nele_jac += !use_m₂ ? 0 : problem.jacdata_ee_position.length_jac * length(problem.ee_pos)
+    nele_jac += !use_m₁ ? 0 : jacdata_dyn.jac_length * (problem.num_knots - 1)
+    nele_jac += !use_m₂ ? 0 : problem.jacdata_ee_position.jac_length * length(problem.ee_pos)
 
     prob = Ipopt.CreateIpoptProblem(n, vec(x_L), vec(x_U), m, g_L, g_U, nele_jac, 0,
                                     eval_f, eval_g, eval_grad_f, eval_jac_g, nothing)

@@ -125,8 +125,8 @@ function make_cb_eval_ga_con_dyn(problem, robot, jacdata)
             jacdata(x[ind_vars])
 
             # Pass the Jacobian to Knitro
-            offset_jac = i * jacdata.length_jac
-            ind_jac = (1:jacdata.length_jac) .+ offset_jac
+            offset_jac = i * jacdata.jac_length
+            ind_jac = (1:jacdata.jac_length) .+ offset_jac
             evalResult.jac[ind_jac] = nonzeros(jacdata.jac)
         end
 
