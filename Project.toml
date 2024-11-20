@@ -22,6 +22,9 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 SparseDiffTools = "47a9eef4-7e08-11e9-0b38-333d64bd3804"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
+[sources]
+MeshCatMechanisms = {rev = "hf/upstream-changes", url = "https://github.com/ferrolho/MeshCatMechanisms.jl"}
+
 [compat]
 Colors = "0.12, 0.13"
 ForwardDiff = "0.10"
