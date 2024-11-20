@@ -61,6 +61,9 @@ include("./constraints/end_effector.jl")
 include("./transcription/ipopt.jl")
 include("./plots.jl")
 
+# Code to "exercise" the package - see https://julialang.github.io/PrecompileTools.jl/stable/
+include("./precompile.jl")
+
 export solve_with_knitro
 
 end # module

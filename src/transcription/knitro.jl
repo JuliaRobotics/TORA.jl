@@ -26,21 +26,21 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     ind_v = hcat([range(1 + (i * nₓ) + robot.n_q            , length=robot.n_v) for i = (1:problem.num_knots    ) .- 1]...)
     ind_τ = hcat([range(1 + (i * nₓ) + robot.n_q + robot.n_v, length=robot.n_τ) for i = (1:problem.num_knots - 1) .- 1]...)
 
-    KNITRO.KN_set_var_lobnds(kc, Cint.(vec(ind_q) .- 1), repeat(robot.q_lo, problem.num_knots))  # q lower bounds
-    KNITRO.KN_set_var_upbnds(kc, Cint.(vec(ind_q) .- 1), repeat(robot.q_hi, problem.num_knots))  # q upper bounds
+    KNITRO.KN_set_var_lobnds(kc, length(ind_q), Cint.(vec(ind_q) .- 1), repeat(robot.q_lo, problem.num_knots))  # q lower bounds
+    KNITRO.KN_set_var_upbnds(kc, length(ind_q), Cint.(vec(ind_q) .- 1), repeat(robot.q_hi, problem.num_knots))  # q upper bounds
 
-    KNITRO.KN_set_var_lobnds(kc, Cint.(vec(ind_v) .- 1), repeat(robot.v_lo, problem.num_knots))  # v lower bounds
-    KNITRO.KN_set_var_upbnds(kc, Cint.(vec(ind_v) .- 1), repeat(robot.v_hi, problem.num_knots))  # v upper bounds
+    KNITRO.KN_set_var_lobnds(kc, length(ind_v), Cint.(vec(ind_v) .- 1), repeat(robot.v_lo, problem.num_knots))  # v lower bounds
+    KNITRO.KN_set_var_upbnds(kc, length(ind_v), Cint.(vec(ind_v) .- 1), repeat(robot.v_hi, problem.num_knots))  # v upper bounds
 
     if !isempty(ind_τ)
-        KNITRO.KN_set_var_lobnds(kc, Cint.(vec(ind_τ) .- 1), repeat(robot.τ_lo, problem.num_knots - 1))  # τ lower bounds
-        KNITRO.KN_set_var_upbnds(kc, Cint.(vec(ind_τ) .- 1), repeat(robot.τ_hi, problem.num_knots - 1))  # τ upper bounds
+        KNITRO.KN_set_var_lobnds(kc, length(ind_τ), Cint.(vec(ind_τ) .- 1), repeat(robot.τ_lo, problem.num_knots - 1))  # τ lower bounds
+        KNITRO.KN_set_var_upbnds(kc, length(ind_τ), Cint.(vec(ind_τ) .- 1), repeat(robot.τ_hi, problem.num_knots - 1))  # τ upper bounds
     end
 
     # Fixed variables
-    for (k, q) ∈ problem.fixed_q KNITRO.KN_set_var_fxbnds(kc, Cint.(vec(ind_q[:,k]) .- 1), q) end
-    for (k, v) ∈ problem.fixed_v KNITRO.KN_set_var_fxbnds(kc, Cint.(vec(ind_v[:,k]) .- 1), v) end
-    for (k, τ) ∈ problem.fixed_τ KNITRO.KN_set_var_fxbnds(kc, Cint.(vec(ind_τ[:,k]) .- 1), τ) end
+    for (k, q) ∈ problem.fixed_q KNITRO.KN_set_var_fxbnds(kc, length(robot.n_q), Cint.(vec(ind_q[:,k]) .- 1), q) end
+    for (k, v) ∈ problem.fixed_v KNITRO.KN_set_var_fxbnds(kc, length(robot.n_v), Cint.(vec(ind_v[:,k]) .- 1), v) end
+    for (k, τ) ∈ problem.fixed_τ KNITRO.KN_set_var_fxbnds(kc, length(robot.n_τ), Cint.(vec(ind_τ[:,k]) .- 1), τ) end
 
     # # # # # # # #
     # Constraints #
@@ -59,7 +59,7 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     ind_con_ee_pos = (1:m₂) .+ (m₁)
 
     if use_m₁
-        KNITRO.KN_set_con_eqbnds(kc, collect(Cint, ind_con_dyn .- 1), zeros(m₁))
+        KNITRO.KN_set_con_eqbnds(kc, m₁, collect(Cint, ind_con_dyn .- 1), zeros(m₁))
 
         if use_inv_dyn
             jac = problem.jacdata_inv_dyn.jac
@@ -100,7 +100,7 @@ function solve_with_knitro(problem::Problem, robot::Robot;
 
         @assert length(ind_con_ee_pos) == length(con_ee)
 
-        KNITRO.KN_set_con_eqbnds(kc, collect(Cint, ind_con_ee_pos .- 1), vec(con_ee))
+        KNITRO.KN_set_con_eqbnds(kc, length(con_ee), collect(Cint, ind_con_ee_pos .- 1), vec(con_ee))
 
         cb = KNITRO.KN_add_eval_callback(kc, false, collect(Cint, ind_con_ee_pos .- 1), cb_eval_fc_con_ee)
 
@@ -155,7 +155,7 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     @assert length(initial_guess) == n
 
     # Set starting solution
-    KNITRO.KN_set_var_primal_init_values(kc, initial_guess)
+    KNITRO.KN_set_var_primal_init_values_all(kc, initial_guess)
 
     # # # # # # # # #
     # User Options  #
