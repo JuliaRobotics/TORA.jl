@@ -44,7 +44,7 @@ function __init__()
     @require KNITRO = "67920dd8-b58e-52a8-8622-53c4cffbe346" include("./transcription/knitro.jl")
 end
 
-greet() = print("Hello World!")
+greet() = println("Hello World!")
 
 # Artifacts (robot meshes, URDF files, etc.)
 include("../dev/artifacts.jl")
@@ -60,6 +60,7 @@ include("./constraints/dynamics.jl")
 include("./constraints/end_effector.jl")
 include("./transcription/ipopt.jl")
 include("./plots.jl")
+include("./utils.jl")
 
 # Code to "exercise" the package - see https://julialang.github.io/PrecompileTools.jl/stable/
 include("./precompile.jl")
