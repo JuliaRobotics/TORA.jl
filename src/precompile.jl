@@ -39,6 +39,10 @@ using PrecompileTools: @setup_workload, @compile_workload
         fix_joint_velocities!(problem, robot, 1, zeros(robot.n_v))
         constrain_ee_position!(problem, 1, zeros(3))
 
+        body_name = "panda_link7"  # this is the fixed parent link of "panda_hand_tcp"
+        quaternion = QuatRotation(0.27, 0.65, 0.27, 0.65)
+        add_constraint_body_orientation!(problem, robot, body_name, 1, quaternion)
+
         initial_guess = zeros(problem.num_knots * (robot.n_q + robot.n_v + robot.n_τ) - robot.n_τ)
 
         cpu_time, x, solver_log = solve_with_ipopt(problem, robot, initial_guess=initial_guess, user_options=ipopt_options, use_inv_dyn=false, minimise_τ=false)

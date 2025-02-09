@@ -11,6 +11,7 @@ jl.seval("Pkg.status()")
 
 # Add package dependencies
 jl.seval('Pkg.add("MeshCat")')
+jl.seval('Pkg.add("Rotations")')
 
 # Develop the local package of TORA.jl
 jl.seval('Pkg.develop(path="../../TORA.jl")')

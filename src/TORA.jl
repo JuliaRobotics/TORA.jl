@@ -10,6 +10,7 @@ using NPZ
 using Plots
 using Requires
 using RigidBodyDynamics
+using Rotations
 using SparseArrays
 using SparseDiffTools
 using StaticArrays
