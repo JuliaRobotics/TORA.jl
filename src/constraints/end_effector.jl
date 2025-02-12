@@ -64,3 +64,17 @@ function show_ee_path(vis::Visualizer, ee_positions::Matrix{Float64})
     setobject!(vis["ee path"], Object(PointCloud(points), material, "Line"))
     nothing
 end
+
+function body_orientation!(dx, robot, x::AbstractVector{T}) where {T}
+    state = robot.statecache[T]
+    set_configuration!(state, x)
+
+    body_tf = transform_to_root(state, robot.frame_ee)
+    mrp = MRP(rotation(body_tf))
+
+    dx[1] = mrp.x
+    dx[2] = mrp.y
+    dx[3] = mrp.z
+
+    dx
+end

@@ -6,7 +6,8 @@ addOption(prob, k, v::Float64) = Ipopt.AddIpoptNumOption(prob, k, v)
     solve_with_ipopt(problem, robot;
                      initial_guess=Float64[],
                      use_inv_dyn=false,
-                     minimise_τ=false,
+                     minimise_velocities=false,
+                     minimise_torques=false,
                      user_options=Dict())
 
 Solve the nonlinear optimization problem with Ipopt.
@@ -16,7 +17,8 @@ Further options can be set using the keyword arguments. See [Solver Interfaces](
 # Keyword arguments
 - `initial_guess::Vector{Float64}=Float64[]`: the starting point for the solver.
 - `use_inv_dyn::Bool=false`: if true, enables the use of inverse dynamics instead of forward dynamics.
-- `minimise_τ::Bool=false`: if true, activates a cost function to minimize the joint torques.
+- `minimise_velocities::Bool=false`: if true, activates a cost function to minimize the joint velocities.
+- `minimise_torques::Bool=false`: if true, activates a cost function to minimize the joint torques.
 - `user_options::Dict=Dict()`: the user options for Ipopt.
 
 See also: [`solve_with_knitro`](@ref)
@@ -24,7 +26,8 @@ See also: [`solve_with_knitro`](@ref)
 function solve_with_ipopt(problem::Problem, robot::Robot;
                           initial_guess::Vector{Float64}=Float64[],
                           use_inv_dyn::Bool=false,
-                          minimise_τ::Bool=false,
+                          minimise_velocities::Bool=false,
+                          minimise_torques::Bool=false,
                           user_options::Dict=Dict("hessian_approximation" => "limited-memory"))
     # # # # # # # # # # # # # # # #
     # Variables and their bounds  #
@@ -73,11 +76,13 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
 
     use_m₁ = true  # nonlinear equality: dynamics
     use_m₂ = true  # nonlinear equality: ee xyz-position
+    use_m₃ = true  # nonlinear equality: ee rotation
 
     m₁ = !use_m₁ ? 0 : (robot.n_q + robot.n_v) * (problem.num_knots - 1)  # equations of motion
     m₂ = !use_m₂ ? 0 : 3 * length(problem.ee_pos)  # xyz-position (3 NL equality)
+    m₃ = !use_m₃ ? 0 : body_orientation_constraints_per_knot(problem) |> sum
 
-    m = m₁ + m₂  # total number of constraints
+    m = m₁ + m₂ + m₃  # total number of constraints
 
     g_L, g_U = Float64[], Float64[]
 
@@ -93,7 +98,30 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         append!(g_U, vec(con_ee))
     end
 
-    @assert length(g_L) == length(g_U)
+    # We want to iterate only through the constrained knots for this robot body/link.
+    knots = filter(1:problem.num_knots) do knotᵢ
+        # body_name = "panda_link7"  # TODO ... hard-coded for now.
+        # knotᵢ ∈ keys(problem.constraints_body_orientation) &&
+        # body_name ∈ keys(problem.constraints_body_orientation[knotᵢ])
+        knotᵢ ∈ keys(problem.constraints_body_orientation)
+    end
+
+    jacdata = JacobianData((out, x) -> body_orientation!(out, robot, x), rand(3), rand(robot.n_q))
+
+    if use_m₃
+        # These are the target values for the equalities of Knitro.
+        con_vals = mapreduce(hcat, knots; init=Matrix{Float64}(undef, 3, 0)) do k
+            dₖ = problem.constraints_body_orientation[k]
+            # mrp = MRP(dₖ[body_name])
+            mrp = MRP(dₖ |> values |> only)
+            [mrp.x, mrp.y, mrp.z]
+        end
+
+        append!(g_L, con_vals)
+        append!(g_U, con_vals)
+    end
+
+    @assert length(g_L) == length(g_U) == m
     @assert eltype(g_L) == eltype(g_U) == Float64
 
     # dimension of each mesh point
@@ -122,12 +150,23 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         end
 
         if use_m₂
-            length_c = 3
+            length_c = size(problem.jacdata_ee_position.jac, 1)  # length of constraint (per knot)
             for (i, k) = enumerate(sort(collect(keys(problem.ee_pos))))
                 ind_vars = range(1 + (k - 1) * nₓ, length=robot.n_q)  # indices of the decision variables
                 offset_con = (i - 1) * length_c + (m₁)
                 ind_cons = (1:length_c) .+ offset_con
                 @views ee_position!(g[ind_cons], robot, x[ind_vars])  # constraint evaluation at that point
+            end
+        end
+
+        if use_m₃
+            length_c = size(jacdata.jac, 1)  # length of constraint (per knot)
+            offset_con = m₁ + m₂
+            for i = knots .- 1
+                ind_cons = (1:length_c) .+ offset_con                      # Indices of the respective constraints
+                ind_vars = range(1 + i * nₓ, length=robot.n_q)             # Indices of the decision variables
+                @views body_orientation!(g[ind_cons], robot, x[ind_vars])  # Constraint evaluation at that point
+                offset_con += length_c
             end
         end
     end
@@ -167,6 +206,22 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
     end
 
+    if use_m₃
+        ind_offset = m₁ + m₂
+        for k = knots
+            inds = rowvals(jacdata.jac) .+ ind_offset
+            ind_offset += size(jacdata.jac, 1)
+            append!(jacIndexConsCB, inds)
+        end
+
+        for k = knots
+            vals = vcat([fill(j + (k - 1) * nₓ, length(nzrange(jacdata.jac, j)))
+                         for j = 1:size(jacdata.jac, 2)]...)
+            append!(jacIndexVarsCB, vals)
+        end
+
+        @assert length(jacIndexConsCB) == length(jacIndexVarsCB)
+    end
 
     function eval_jac_g(x, rows, cols, values::Union{Nothing,Vector{Float64}})
         if isnothing(values)
@@ -186,12 +241,11 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
                     # Evaluate the Jacobian at that point
                     jacdata_dyn(x[ind_vars])
 
-                    # Pass the Jacobian to Knitro
-                    offset_jac = i * jacdata_dyn.jac_length
-                    ind_jac = (1:jacdata_dyn.jac_length) .+ offset_jac
+                    # Pass the Jacobian to Ipopt
+                    ind_jac = (1:jacdata_dyn.jac_length) .+ offset_prev
                     values[ind_jac] = nonzeros(jacdata_dyn.jac)
+                    offset_prev += jacdata_dyn.jac_length
                 end
-                offset_prev += (problem.num_knots - 1) * jacdata_dyn.jac_length
             end
 
             if use_m₂
@@ -199,9 +253,24 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
                 for (i, k) = enumerate(sort(collect(keys(problem.ee_pos))))
                     ind_qᵢ = range(1 + (k - 1) * nₓ, length=robot.n_q)  # indices of the decision variables
                     problem.jacdata_ee_position(x[ind_qᵢ])              # jacobian evaluation at that point
-                    offset_jac = (i - 1) * problem.jacdata_ee_position.jac_length + offset_prev
-                    ind_jac = (1:problem.jacdata_ee_position.jac_length) .+ offset_jac
-                    values[ind_jac] = nonzeros(problem.jacdata_ee_position.jac)  # pass jacobian to Knitro
+
+                    # Pass the Jacobian to Ipopt
+                    ind_jac = (1:problem.jacdata_ee_position.jac_length) .+ offset_prev
+                    values[ind_jac] = nonzeros(problem.jacdata_ee_position.jac)
+                    offset_prev += problem.jacdata_ee_position.jac_length
+                end
+            end
+
+            if use_m₃
+                # End-effector constraints (rotation)
+                for k = knots
+                    ind_qᵢ = range(1 + (k - 1) * nₓ, length=robot.n_q)  # Indices of the decision variables
+                    jacdata(x[ind_qᵢ])  # Evaluate the Jacobian at that point
+
+                    # Pass the Jacobian to Ipopt
+                    ind_jac = (1:jacdata.jac_length) .+ offset_prev
+                    values[ind_jac] = nonzeros(jacdata.jac)
+                    offset_prev += jacdata.jac_length
                 end
             end
         end
@@ -211,28 +280,41 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     # Objective #
     # # # # # # #
 
-    function eval_f(x)
-        return 0
-    end
+    eval_f(x) = 0  # Callback function for evaluating objective function
+    eval_grad_f(x, grad_f) = grad_f[:] = zeros(n)  # Callback function for evaluating gradient of objective function
 
-    function eval_grad_f(x, grad_f)
-        grad_f[:] = zeros(n)
-    end
-
-    if minimise_τ
-        ind_τ = hcat([range(1 + (i * nₓ) + robot.n_q + robot.n_v, length=robot.n_τ)
-                      for i = (1:problem.num_knots - 1) .- 1]...)
-        indexVars, coefs = vec(ind_τ), fill(1 / (problem.num_knots - 1), n3)
+    if minimise_velocities
+        offset_velocities = robot.n_q + 1  # indice of the first velocity value within a knot point
+        indexVars = vcat([range((i - 1) * nₓ + offset_velocities, length=robot.n_v)
+                          for i = 1:problem.num_knots]...)
+        coefs = fill(1 / problem.num_knots, robot.n_v * problem.num_knots)
         @assert length(indexVars) == length(coefs)
 
-        eval_f = function(x)
-            # Minimize τ, i.e., the necessary joint torques.
+        eval_f = function (x)
             return sum(coefs .* x[indexVars] .* x[indexVars])
         end
 
-        eval_grad_f = function(x, grad_f)
+        eval_grad_f = function (x, grad_f)
             grad_f[:] = zeros(n)
-            grad_f[indexVars] .= coefs .* 2x[indexVars]
+            @. grad_f[indexVars] = coefs * 2 * x[indexVars]
+        end
+    end
+
+    if minimise_torques
+        offset_torques = robot.n_q + robot.n_v + 1  # indice of the first torque value within a knot point
+        num_knots_with_torque = problem.num_knots - 1
+        indexVars = vcat([range((i - 1) * nₓ + offset_torques, length=robot.n_τ)
+                          for i = 1:num_knots_with_torque]...)
+        coefs = fill(1 / num_knots_with_torque, robot.n_τ * num_knots_with_torque)
+        @assert length(indexVars) == length(coefs)
+
+        eval_f = function (x)
+            return sum(coefs .* x[indexVars] .* x[indexVars])
+        end
+
+        eval_grad_f = function (x, grad_f)
+            grad_f[:] = zeros(n)
+            @. grad_f[indexVars] = coefs * 2 * x[indexVars]
         end
     end
 
@@ -244,6 +326,7 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     nele_jac = 0
     nele_jac += !use_m₁ ? 0 : jacdata_dyn.jac_length * (problem.num_knots - 1)
     nele_jac += !use_m₂ ? 0 : problem.jacdata_ee_position.jac_length * length(problem.ee_pos)
+    nele_jac += !use_m₃ ? 0 : jacdata.jac_length * length(knots)
 
     prob = Ipopt.CreateIpoptProblem(n, vec(x_L), vec(x_U), m, g_L, g_U, nele_jac, 0,
                                     eval_f, eval_g, eval_grad_f, eval_jac_g, nothing)

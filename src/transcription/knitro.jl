@@ -3,7 +3,7 @@ using .KNITRO
 function solve_with_knitro(problem::Problem, robot::Robot;
                            initial_guess::Vector{Float64}=Float64[],
                            use_inv_dyn::Bool=false,
-                           minimise_τ::Bool=false,
+                           minimise_torques::Bool=false,
                            user_options::Dict=Dict())
     lm = KNITRO.LMcontext()  # Instantiate license manager
     kc = KNITRO.KN_new_lm(lm)  # Create a new Knitro instance
@@ -136,7 +136,7 @@ function solve_with_knitro(problem::Problem, robot::Robot;
     # Objective #
     # # # # # # #
 
-    if minimise_τ
+    if minimise_torques
         # Minimize τ, i.e., the necessary joint torques.
         indexVars, coefs = Cint.(vec(ind_τ) .- 1), fill(1 / (problem.num_knots - 1), n3)
         KNITRO.KN_add_obj_quadratic_struct(kc, indexVars, indexVars, coefs)

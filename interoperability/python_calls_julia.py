@@ -12,6 +12,7 @@ def init():
     """
     # Load package dependencies
     jl.seval("using MeshCat")
+    jl.seval("using Rotations")
     jl.seval("using TORA")
 
     # Call the greet() function from the TORA.jl package
@@ -55,7 +56,7 @@ def main():
 
     jl_robot = init()
 
-    trajectory_discretisation = 100  # in Hertz
+    trajectory_discretisation = 10  # in Hertz
     trajectory_duration = 2.0  # in seconds
 
     trajectory_num_knots = int(trajectory_discretisation * trajectory_duration) + 1  # in units (number of knots)
@@ -95,10 +96,17 @@ def main():
         jl.TORA.fix_joint_velocities_b(jl_problem, jl_robot, jl_problem.num_knots, np.zeros(jl_robot.n_v))
 
         # Define the end-effector position that we want to achieve
-        py_eff_pos = [0.5, 0.2, 0.1]
+        py_eff_pos = [0.5, 0.2, 0.8]
 
         # Constrain the end-effector position at the last knot of the trajectory
         jl.TORA.constrain_ee_position_b(jl_problem, jl_problem.num_knots, py_eff_pos)
+
+        # Define the end-effector orientation that we want to achieve
+        body_name = "panda_link7"  # this is the fixed parent link of "panda_hand_tcp"
+        jl_quaternion = jl.QuatRotation(0.27, 0.65, 0.27, 0.65)  # Quaternion order is (w, x, y, z)
+
+        # Constrain the end-effector orientation at the last knot of the trajectory
+        jl.TORA.add_constraint_body_orientation_b(jl_problem, jl_robot, body_name, jl_problem.num_knots, jl_quaternion)
 
         # Show a summary of the problem instance (this can be commented out)
         jl.TORA.show_problem_info(jl_problem)
@@ -112,7 +120,8 @@ def main():
             initial_guess=jl_initial_guess,
             user_options=ipopt_options,
             use_inv_dyn=True,
-            minimise_τ=False,
+            minimise_velocities=False,
+            minimise_torques=False,
         )
 
         # Unpack the solution `x` into joint positions, velocities, and torques
