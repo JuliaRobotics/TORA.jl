@@ -98,11 +98,12 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         append!(g_U, vec(con_ee))
     end
 
-    body_name = "panda_link7"  # TODO ... hard-coded for now.
     # We want to iterate only through the constrained knots for this robot body/link.
     knots = filter(1:problem.num_knots) do knotᵢ
-        knotᵢ ∈ keys(problem.constraints_body_orientation) &&
-        body_name ∈ keys(problem.constraints_body_orientation[knotᵢ])
+        # body_name = "panda_link7"  # TODO ... hard-coded for now.
+        # knotᵢ ∈ keys(problem.constraints_body_orientation) &&
+        # body_name ∈ keys(problem.constraints_body_orientation[knotᵢ])
+        knotᵢ ∈ keys(problem.constraints_body_orientation)
     end
 
     jacdata = JacobianData((out, x) -> body_orientation!(out, robot, x), rand(3), rand(robot.n_q))
@@ -111,7 +112,8 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         # These are the target values for the equalities of Knitro.
         con_vals = mapreduce(hcat, knots; init=Matrix{Float64}(undef, 3, 0)) do k
             dₖ = problem.constraints_body_orientation[k]
-            mrp = MRP(dₖ[body_name])
+            # mrp = MRP(dₖ[body_name])
+            mrp = MRP(dₖ |> values |> only)
             [mrp.x, mrp.y, mrp.z]
         end
 
