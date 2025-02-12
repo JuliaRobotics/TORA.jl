@@ -7,6 +7,7 @@ makedocs(
     format = Documenter.HTML(),
     warnonly = Documenter.except(),
     sitename = "TORA.jl",
+    # repo = Remotes.GitHub("JuliaRobotics", "TORA.jl"),
     authors = "Henrique Ferrolho",
     pages = [
         "Home" => "index.md",

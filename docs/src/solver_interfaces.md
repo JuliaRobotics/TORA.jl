@@ -35,13 +35,13 @@ The *default value* for `use_inv_dyn` is `false`. I.e., the default behaviour is
 
 ### Energy Minimization
 
-`minimise_τ=false`
+`minimise_torques=false`
 
 By default, problems formulated with TORA.jl are *feasibility problems*.
 In other words, the goal for the solver is to find a set of values that satisfies all the constraints of a [`Problem`](@ref).
 However, it is possible to define a cost function to be minimized. (Or a value function to be maximized.)
 
-The *default value* for `minimise_τ` is `false`. I.e., the default behaviour is to solve the feasibility problem, without optimizing any objective function. Alternatively, if `minimise_τ` is set to `true`, TORA.jl will minimize the joint torques required by the trajectory being computed.
+The *default value* for `minimise_torques` is `false`. I.e., the default behaviour is to solve the feasibility problem, without optimizing any objective function. Alternatively, if `minimise_torques` is set to `true`, TORA.jl will minimize the joint torques required by the trajectory being computed.
 
 !!! warning
     Optimizing an objective function is very costly, and may take a significant amount of iterations depending on the [Initial Guess](@ref) provided to the solver.
