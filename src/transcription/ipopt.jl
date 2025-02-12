@@ -6,6 +6,7 @@ addOption(prob, k, v::Float64) = Ipopt.AddIpoptNumOption(prob, k, v)
     solve_with_ipopt(problem, robot;
                      initial_guess=Float64[],
                      use_inv_dyn=false,
+                     minimise_velocities=false,
                      minimise_torques=false,
                      user_options=Dict())
 
@@ -16,6 +17,7 @@ Further options can be set using the keyword arguments. See [Solver Interfaces](
 # Keyword arguments
 - `initial_guess::Vector{Float64}=Float64[]`: the starting point for the solver.
 - `use_inv_dyn::Bool=false`: if true, enables the use of inverse dynamics instead of forward dynamics.
+- `minimise_velocities::Bool=false`: if true, activates a cost function to minimize the joint velocities.
 - `minimise_torques::Bool=false`: if true, activates a cost function to minimize the joint torques.
 - `user_options::Dict=Dict()`: the user options for Ipopt.
 
@@ -24,6 +26,7 @@ See also: [`solve_with_knitro`](@ref)
 function solve_with_ipopt(problem::Problem, robot::Robot;
                           initial_guess::Vector{Float64}=Float64[],
                           use_inv_dyn::Bool=false,
+                          minimise_velocities::Bool=false,
                           minimise_torques::Bool=false,
                           user_options::Dict=Dict("hessian_approximation" => "limited-memory"))
     # # # # # # # # # # # # # # # #
@@ -275,28 +278,41 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
     # Objective #
     # # # # # # #
 
-    function eval_f(x)
-        return 0
-    end
+    eval_f(x) = 0  # Callback function for evaluating objective function
+    eval_grad_f(x, grad_f) = grad_f[:] = zeros(n)  # Callback function for evaluating gradient of objective function
 
-    function eval_grad_f(x, grad_f)
-        grad_f[:] = zeros(n)
-    end
-
-    if minimise_torques
-        ind_τ = hcat([range(1 + (i * nₓ) + robot.n_q + robot.n_v, length=robot.n_τ)
-                      for i = (1:problem.num_knots - 1) .- 1]...)
-        indexVars, coefs = vec(ind_τ), fill(1 / (problem.num_knots - 1), n3)
+    if minimise_velocities
+        offset_velocities = robot.n_q + 1  # indice of the first velocity value within a knot point
+        indexVars = vcat([range((i - 1) * nₓ + offset_velocities, length=robot.n_v)
+                          for i = 1:problem.num_knots]...)
+        coefs = fill(1 / problem.num_knots, robot.n_v * problem.num_knots)
         @assert length(indexVars) == length(coefs)
 
-        eval_f = function(x)
-            # Minimize τ, i.e., the necessary joint torques.
+        eval_f = function (x)
             return sum(coefs .* x[indexVars] .* x[indexVars])
         end
 
-        eval_grad_f = function(x, grad_f)
+        eval_grad_f = function (x, grad_f)
             grad_f[:] = zeros(n)
-            grad_f[indexVars] .= coefs .* 2x[indexVars]
+            @. grad_f[indexVars] = coefs * 2 * x[indexVars]
+        end
+    end
+
+    if minimise_torques
+        offset_torques = robot.n_q + robot.n_v + 1  # indice of the first torque value within a knot point
+        num_knots_with_torque = problem.num_knots - 1
+        indexVars = vcat([range((i - 1) * nₓ + offset_torques, length=robot.n_τ)
+                          for i = 1:num_knots_with_torque]...)
+        coefs = fill(1 / num_knots_with_torque, robot.n_τ * num_knots_with_torque)
+        @assert length(indexVars) == length(coefs)
+
+        eval_f = function (x)
+            return sum(coefs .* x[indexVars] .* x[indexVars])
+        end
+
+        eval_grad_f = function (x, grad_f)
+            grad_f[:] = zeros(n)
+            @. grad_f[indexVars] = coefs * 2 * x[indexVars]
         end
     end
 

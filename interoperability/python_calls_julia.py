@@ -120,6 +120,7 @@ def main():
             initial_guess=jl_initial_guess,
             user_options=ipopt_options,
             use_inv_dyn=True,
+            minimise_velocities=False,
             minimise_torques=False,
         )
 
