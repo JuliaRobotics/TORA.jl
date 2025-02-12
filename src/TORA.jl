@@ -24,7 +24,7 @@ import Base: length
     solve_with_knitro(problem, robot;
                       initial_guess=Float64[],
                       use_inv_dyn=false,
-                      minimise_τ=false,
+                      minimise_torques=false,
                       user_options=Dict())
 
 Solve the nonlinear optimization problem with Knitro.
@@ -34,7 +34,7 @@ Further options can be set using the keyword arguments. See [Solver Interfaces](
 # Keyword arguments
 - `initial_guess::Vector{Float64}=Float64[]`: the starting point for the solver.
 - `use_inv_dyn::Bool=false`: if true, enables the use of inverse dynamics instead of forward dynamics.
-- `minimise_τ::Bool=false`: if true, activates a cost function to minimize the joint torques.
+- `minimise_torques::Bool=false`: if true, activates a cost function to minimize the joint torques.
 - `user_options::Dict=Dict()`: the user options for Knitro.
 
 See also: [`solve_with_ipopt`](@ref)

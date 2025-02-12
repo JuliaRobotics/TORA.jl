@@ -45,9 +45,9 @@ using PrecompileTools: @setup_workload, @compile_workload
 
         initial_guess = zeros(problem.num_knots * (robot.n_q + robot.n_v + robot.n_τ) - robot.n_τ)
 
-        cpu_time, x, solver_log = solve_with_ipopt(problem, robot, initial_guess=initial_guess, user_options=ipopt_options, use_inv_dyn=false, minimise_τ=false)
-        cpu_time, x, solver_log = solve_with_ipopt(problem, robot, initial_guess=initial_guess, user_options=ipopt_options, use_inv_dyn=false, minimise_τ=true)
-        cpu_time, x, solver_log = solve_with_ipopt(problem, robot, initial_guess=initial_guess, user_options=ipopt_options, use_inv_dyn=true, minimise_τ=false)
+        cpu_time, x, solver_log = solve_with_ipopt(problem, robot, initial_guess=initial_guess, user_options=ipopt_options, use_inv_dyn=false, minimise_torques=false)
+        cpu_time, x, solver_log = solve_with_ipopt(problem, robot, initial_guess=initial_guess, user_options=ipopt_options, use_inv_dyn=false, minimise_torques=true)
+        cpu_time, x, solver_log = solve_with_ipopt(problem, robot, initial_guess=initial_guess, user_options=ipopt_options, use_inv_dyn=true, minimise_torques=false)
 
         play_trajectory(vis, problem, robot, x)
         plot_results(problem, robot, x)

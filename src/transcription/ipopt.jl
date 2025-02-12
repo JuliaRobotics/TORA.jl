@@ -6,7 +6,7 @@ addOption(prob, k, v::Float64) = Ipopt.AddIpoptNumOption(prob, k, v)
     solve_with_ipopt(problem, robot;
                      initial_guess=Float64[],
                      use_inv_dyn=false,
-                     minimise_τ=false,
+                     minimise_torques=false,
                      user_options=Dict())
 
 Solve the nonlinear optimization problem with Ipopt.
@@ -16,7 +16,7 @@ Further options can be set using the keyword arguments. See [Solver Interfaces](
 # Keyword arguments
 - `initial_guess::Vector{Float64}=Float64[]`: the starting point for the solver.
 - `use_inv_dyn::Bool=false`: if true, enables the use of inverse dynamics instead of forward dynamics.
-- `minimise_τ::Bool=false`: if true, activates a cost function to minimize the joint torques.
+- `minimise_torques::Bool=false`: if true, activates a cost function to minimize the joint torques.
 - `user_options::Dict=Dict()`: the user options for Ipopt.
 
 See also: [`solve_with_knitro`](@ref)
@@ -24,7 +24,7 @@ See also: [`solve_with_knitro`](@ref)
 function solve_with_ipopt(problem::Problem, robot::Robot;
                           initial_guess::Vector{Float64}=Float64[],
                           use_inv_dyn::Bool=false,
-                          minimise_τ::Bool=false,
+                          minimise_torques::Bool=false,
                           user_options::Dict=Dict("hessian_approximation" => "limited-memory"))
     # # # # # # # # # # # # # # # #
     # Variables and their bounds  #
@@ -283,7 +283,7 @@ function solve_with_ipopt(problem::Problem, robot::Robot;
         grad_f[:] = zeros(n)
     end
 
-    if minimise_τ
+    if minimise_torques
         ind_τ = hcat([range(1 + (i * nₓ) + robot.n_q + robot.n_v, length=robot.n_τ)
                       for i = (1:problem.num_knots - 1) .- 1]...)
         indexVars, coefs = vec(ind_τ), fill(1 / (problem.num_knots - 1), n3)
